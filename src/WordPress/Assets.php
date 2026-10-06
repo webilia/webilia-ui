@@ -16,6 +16,8 @@ final class Assets
         'badge' => ['style' => 'badge'],
         'notice' => ['style' => 'notice'],
         'feedback' => ['style' => 'feedback'],
+        'icons' => ['style' => 'icons'],
+        'toast' => ['style' => 'toast', 'script' => 'toast', 'requires' => ['icons']],
         'busy' => ['style' => 'feedback', 'script' => 'busy'],
         'modal' => ['style' => 'modal', 'script' => 'modal', 'requires' => ['buttons']],
     ];

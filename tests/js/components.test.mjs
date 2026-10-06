@@ -68,8 +68,71 @@ test('busy state restores only controls it disabled', async () => {
   dom.window.close();
 });
 
+test('toast renders text safely, updates, and dismisses independently', async () => {
+  const dom = await browserWith(['toast', 'toast'], '<div class="wui" id="root"></div>');
+  const { document, WebiliaUI } = dom.window;
+  const root = document.getElementById('root');
+  const first = WebiliaUI.toast.show('<b>Saved</b>', { root, tone: 'success', durationMs: 0, closeLabel: 'Close message' });
+  const second = WebiliaUI.toast.show('Another result', { root, tone: 'info', durationMs: 0 });
+  assert.equal(root.querySelectorAll('.wui-toast-region').length, 1);
+  assert.equal(root.querySelectorAll('.wui-toast').length, 2);
+  assert.equal(first.element.querySelector('.wui-toast__message').textContent, '<b>Saved</b>');
+  assert.equal(first.element.querySelector('b'), null);
+  assert.equal(first.element.querySelector('.wui-toast__icon').classList.contains('wui-icon--checkmark-circle'), true);
+  assert.equal(first.element.querySelector('button').getAttribute('aria-label'), 'Close message');
+  first.update('Failed', { tone: 'danger', durationMs: 0 });
+  assert.equal(first.element.getAttribute('role'), 'alert');
+  assert.equal(first.element.querySelector('.wui-toast__message').textContent, 'Failed');
+  first.element.querySelector('button').click();
+  assert.equal(first.element.isConnected, false);
+  assert.equal(second.element.isConnected, true);
+  second.dismiss();
+  assert.equal(root.querySelector('.wui-toast-region'), null);
+  dom.window.close();
+});
+
+test('toast timeout pauses on hover and focus, then resumes', async () => {
+  const dom = await browserWith(['toast'], '<div class="wui" id="root"></div>');
+  const { document, MouseEvent, WebiliaUI } = dom.window;
+  const toast = WebiliaUI.toast.show('Saved', { root: document.getElementById('root'), durationMs: 70 });
+  toast.element.dispatchEvent(new MouseEvent('mouseenter'));
+  await new Promise((resolve) => setTimeout(resolve, 90));
+  assert.equal(toast.element.isConnected, true);
+  toast.element.querySelector('button').focus();
+  toast.element.dispatchEvent(new MouseEvent('mouseleave'));
+  await new Promise((resolve) => setTimeout(resolve, 90));
+  assert.equal(toast.element.isConnected, true);
+  toast.element.querySelector('button').blur();
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  assert.equal(toast.element.isConnected, false);
+  dom.window.close();
+});
+
+test('toast without a root uses a scoped portal and loading can become timed success', async () => {
+  const dom = await browserWith(['toast'], '<p>Outside Webilia UI</p>');
+  const { document, WebiliaUI } = dom.window;
+  const toast = WebiliaUI.toast.show('Working', { tone: 'loading', closeLabel: 'Dismiss' });
+  assert.equal(document.querySelector('body > .wui[data-wui-toast-scope] .wui-toast--loading'), toast.element);
+  assert.equal(toast.element.querySelector('.wui-toast__progress'), null);
+  toast.update('Done', { tone: 'success', durationMs: 25 });
+  assert.ok(toast.element.querySelector('.wui-toast__progress'));
+  await new Promise((resolve) => setTimeout(resolve, 45));
+  assert.equal(document.querySelector('[data-wui-toast-scope]'), null);
+  dom.window.close();
+});
+
+test('icon stylesheet maps all 139 glyphs to a packaged font', async () => {
+  const css = await readFile(resolve(root, 'dist/css/icons.css'), 'utf8');
+  const glyphs = css.match(/\.wui \.wui-icon--[a-z0-9-]+::before/g) || [];
+  assert.equal(glyphs.length, 139);
+  assert.match(css, /webilia-ui-icons\.woff2/);
+  assert.match(css, /\.wui \.wui-icon--stars::before/);
+  assert.equal((await readFile(resolve(root, 'dist/fonts/webilia-ui-icons.woff2'))).subarray(0, 4).toString(), 'wOF2');
+  assert.equal((await readFile(resolve(root, 'dist/fonts/webilia-ui-icons.woff'))).subarray(0, 4).toString(), 'wOFF');
+});
+
 test('compiled component rules stay under .wui', async () => {
-  for (const name of ['tokens', 'layout', 'buttons', 'header', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal']) {
+  for (const name of ['tokens', 'layout', 'buttons', 'header', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast']) {
     const css = await readFile(resolve(root, `dist/css/${name}.css`), 'utf8');
     const sheet = postcss.parse(css);
     sheet.walkRules((rule) => {
