@@ -1,0 +1,15 @@
+.wui .wui-stack { display: flex; flex-direction: column; gap: var(--wui-stack-gap, var(--wui-space-4)); }
+.wui .wui-inline { display: flex; flex-wrap: wrap; align-items: center; gap: var(--wui-inline-gap, var(--wui-space-3)); }
+.wui .wui-grid { display: grid; grid-template-columns: repeat(var(--wui-grid-columns, 2), minmax(0, 1fr)); gap: var(--wui-grid-gap, var(--wui-space-4)); }
+.wui .wui-gap-1 { gap: var(--wui-space-1); }
+.wui .wui-gap-2 { gap: var(--wui-space-2); }
+.wui .wui-gap-3 { gap: var(--wui-space-3); }
+.wui .wui-gap-4 { gap: var(--wui-space-4); }
+.wui .wui-gap-5 { gap: var(--wui-space-5); }
+.wui .wui-gap-6 { gap: var(--wui-space-6); }
+.wui .wui-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--wui-space-2); }
+
+@media (max-width: 782px) {
+  .wui .wui-grid { grid-template-columns: 1fr; }
+  .wui .wui-mobile-stack { flex-direction: column; align-items: stretch; }
+}

@@ -1,0 +1,31 @@
+.wui .wui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wui-space-2);
+  min-block-size: 36px;
+  padding: 7px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--wui-radius-sm);
+  color: var(--wui-color-on-primary);
+  background: var(--wui-color-primary);
+  font: var(--wui-font-weight-semibold) var(--wui-font-size-md)/1.3 var(--wui-font-family);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--wui-transition-fast), border-color var(--wui-transition-fast);
+}
+
+.wui .wui-button:hover { color: var(--wui-color-on-primary); background: var(--wui-color-primary-hover); text-decoration: none; }
+.wui .wui-button:focus-visible { outline: 2px solid var(--wui-color-focus); outline-offset: 2px; box-shadow: var(--wui-focus-ring); }
+.wui .wui-button--secondary { color: var(--wui-color-primary); background: var(--wui-color-surface); border-color: var(--wui-color-primary); }
+.wui .wui-button--secondary:hover { color: var(--wui-color-on-primary); background: var(--wui-color-primary); }
+.wui .wui-button--tertiary { color: var(--wui-color-primary); background: transparent; }
+.wui .wui-button--tertiary:hover { color: var(--wui-color-primary-hover); background: var(--wui-color-info-soft); }
+.wui .wui-button--danger { background: var(--wui-color-danger); }
+.wui .wui-button--danger:hover { background: #912018; }
+.wui .wui-button--icon { inline-size: 36px; padding: 6px; color: var(--wui-color-text); background: transparent; }
+.wui .wui-button--icon:hover { color: var(--wui-color-primary); background: var(--wui-color-background); }
+.wui .wui-button:disabled,
+.wui .wui-button[aria-disabled="true"] { opacity: .55; cursor: not-allowed; pointer-events: none; }
+.wui .wui-button[aria-busy="true"] { cursor: progress; }

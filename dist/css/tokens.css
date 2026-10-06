@@ -1,0 +1,55 @@
+.wui {
+  --wui-color-primary: #3858e9;
+  --wui-color-primary-hover: #2946d3;
+  --wui-color-on-primary: #fff;
+  --wui-color-text: #1d2327;
+  --wui-color-muted: #646970;
+  --wui-color-surface: #fff;
+  --wui-color-background: #f6f7f7;
+  --wui-color-border: #d0d5dd;
+  --wui-color-focus: #3858e9;
+  --wui-color-disabled: #f2f4f7;
+  --wui-color-info: #155eef;
+  --wui-color-info-soft: #eff6ff;
+  --wui-color-success: #157347;
+  --wui-color-success-soft: #e9f7ef;
+  --wui-color-warning: #8a5a00;
+  --wui-color-warning-soft: #fff8e6;
+  --wui-color-danger: #b4232a;
+  --wui-color-danger-soft: #fef2f2;
+  --wui-space-1: 4px;
+  --wui-space-2: 8px;
+  --wui-space-3: 12px;
+  --wui-space-4: 16px;
+  --wui-space-5: 24px;
+  --wui-space-6: 32px;
+  --wui-radius-sm: 4px;
+  --wui-radius-md: 8px;
+  --wui-radius-lg: 12px;
+  --wui-radius-pill: 999px;
+  --wui-shadow-card: 0 1px 3px rgb(16 24 40 / 8%);
+  --wui-shadow-dialog: 0 24px 70px rgb(15 23 42 / 20%);
+  --wui-font-family: inherit;
+  --wui-font-size-sm: 12px;
+  --wui-font-size-md: 14px;
+  --wui-font-size-lg: 18px;
+  --wui-font-weight-normal: 400;
+  --wui-font-weight-semibold: 600;
+  --wui-focus-ring: 0 0 0 3px rgb(56 88 233 / 24%);
+  --wui-transition-fast: 150ms ease;
+  color: var(--wui-color-text);
+  font-family: var(--wui-font-family);
+}
+
+.wui,
+.wui *,
+.wui *::before,
+.wui *::after {
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wui {
+    --wui-transition-fast: 0ms;
+  }
+}

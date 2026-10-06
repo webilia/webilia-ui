@@ -1,0 +1,17 @@
+{
+  "name": "@webilia/ui-build",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/js/*.test.mjs",
+    "test:php": "php tests/php/renderers.php && php tests/php/wordpress-assets.php",
+    "check": "npm run build && npm test && npm run test:php"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^26.1.0",
+    "postcss": "^8.5.0",
+    "sass": "^1.93.0"
+  }
+}

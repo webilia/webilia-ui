@@ -1,0 +1,82 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import test from 'node:test';
+import { JSDOM } from 'jsdom';
+import postcss from 'postcss';
+
+const root = resolve(import.meta.dirname, '../..');
+
+async function browserWith(scripts, html) {
+  const dom = new JSDOM(html, { runScripts: 'outside-only', url: 'https://example.com/' });
+  dom.window.HTMLElement.prototype.getClientRects = function () { return [{ width: 1, height: 1 }]; };
+  for (const script of scripts) {
+    dom.window.eval(await readFile(resolve(root, `dist/js/${script}.js`), 'utf8'));
+  }
+  return dom;
+}
+
+test('declarative modal restores focus and initializes once', async () => {
+  const html = '<button id="trigger" data-wui-modal-open="m">Open</button><div id="m" class="wui wui-modal" data-wui-modal hidden><div class="wui-modal__backdrop" data-wui-modal-close></div><div class="wui-modal__panel" role="dialog" tabindex="-1"><button id="inside" data-wui-modal-close>Close</button></div></div>';
+  const dom = await browserWith(['modal', 'modal'], html);
+  const { document, KeyboardEvent } = dom.window;
+  const trigger = document.getElementById('trigger');
+  const modal = document.getElementById('m');
+  let opened = 0;
+  modal.addEventListener('wui:modal:opened', () => { opened++; });
+  trigger.focus();
+  trigger.click();
+  assert.equal(modal.hidden, false);
+  assert.equal(opened, 1);
+  assert.equal(document.activeElement.id, 'inside');
+  modal.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+  assert.equal(document.activeElement.id, 'inside');
+  modal.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(modal.hidden, true);
+  assert.equal(document.activeElement, trigger);
+  trigger.click();
+  modal.querySelector('.wui-modal__backdrop').click();
+  assert.equal(modal.hidden, true);
+  dom.window.close();
+});
+
+test('confirmation resolves and removes its dialog', async () => {
+  const dom = await browserWith(['modal'], '<button id="trigger">Open</button>');
+  const { document, WebiliaUI } = dom.window;
+  document.getElementById('trigger').focus();
+  const result = WebiliaUI.modal.confirm({ title: 'Delete?', message: 'This cannot be undone.', confirmLabel: 'Delete', danger: true });
+  document.querySelector('[data-wui-confirm-accept]').click();
+  assert.equal(await result, true);
+  assert.equal(document.querySelector('[data-wui-modal]'), null);
+  assert.equal(document.activeElement.id, 'trigger');
+  const canceled = WebiliaUI.modal.confirm({ title: 'Cancel?' });
+  document.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(await canceled, false);
+  dom.window.close();
+});
+
+test('busy state restores only controls it disabled', async () => {
+  const dom = await browserWith(['busy'], '<div id="form"><button id="a">A</button><button id="b" disabled>B</button></div>');
+  const { document, WebiliaUI } = dom.window;
+  const form = document.getElementById('form');
+  WebiliaUI.busy.setBusy(form, true);
+  assert.equal(form.getAttribute('aria-busy'), 'true');
+  assert.equal(document.getElementById('a').disabled, true);
+  WebiliaUI.busy.setBusy(form, false);
+  assert.equal(document.getElementById('a').disabled, false);
+  assert.equal(document.getElementById('b').disabled, true);
+  dom.window.close();
+});
+
+test('compiled component rules stay under .wui', async () => {
+  for (const name of ['tokens', 'layout', 'buttons', 'header', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal']) {
+    const css = await readFile(resolve(root, `dist/css/${name}.css`), 'utf8');
+    const sheet = postcss.parse(css);
+    sheet.walkRules((rule) => {
+      if (rule.parent.type === 'atrule' && rule.parent.name === 'keyframes') return;
+      for (const selector of rule.selectors) {
+        assert.match(selector.trim(), /^\.wui(?:\b|\.)/, `${name}: ${selector}`);
+      }
+    });
+  }
+});

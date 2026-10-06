@@ -1,0 +1,14 @@
+{
+    "name": "webilia/ui",
+    "description": "Modular UI components for Webilia PHP projects.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Webilia\\UI\\": "src/"
+        }
+    }
+}
