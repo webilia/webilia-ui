@@ -41,7 +41,7 @@ $modal = Modal::render([
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Webilia UI Playground</title>
-  <?php foreach (['tokens', 'layout', 'buttons', 'header', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal'] as $style): ?>
+  <?php foreach (['tokens', 'layout', 'buttons', 'header', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast'] as $style): ?>
     <link rel="stylesheet" href="/dist/css/<?php echo htmlspecialchars($style, ENT_QUOTES, 'UTF-8'); ?>.css">
   <?php endforeach; ?>
   <style>
@@ -132,6 +132,19 @@ $modal = Modal::render([
           <div class="wui-inline">
             <?php foreach (['neutral', 'info', 'success', 'warning', 'danger'] as $tone) echo Badge::render(['label' => ucfirst($tone), 'tone' => $tone]); ?>
           </div>
+          <div class="wui-card wui-stack">
+            <h3 class="wui-section__title">Icons and toasts</h3>
+            <div class="wui-inline" aria-label="Icon samples">
+              <?php foreach (['stars', 'checkmark-circle', 'alert', 'question', 'cross'] as $icon): ?>
+                <span class="wui-icon wui-icon--<?php echo htmlspecialchars($icon, ENT_QUOTES, 'UTF-8'); ?>" aria-hidden="true" style="font-size: 24px"></span>
+              <?php endforeach; ?>
+            </div>
+            <div class="wui-inline">
+              <?php foreach (['neutral', 'info', 'success', 'warning', 'danger', 'loading'] as $tone): ?>
+                <button type="button" class="wui-button wui-button--secondary" data-toast-tone="<?php echo htmlspecialchars($tone, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(ucfirst($tone), ENT_QUOTES, 'UTF-8'); ?> toast</button>
+              <?php endforeach; ?>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -150,6 +163,7 @@ $modal = Modal::render([
           <div class="wui-inline"><button type="button" class="wui-button">פעולה ראשית</button><?php echo Badge::render(['label' => 'Active', 'tone' => 'info']); ?></div>
           <div class="wui-field"><label class="wui-field__label" for="rtl-input">שם</label><input class="wui-input" id="rtl-input" value="דוגמה"></div>
           <?php echo Notice::render(['message' => 'Example direction-aware notice', 'tone' => 'info']); ?>
+          <button type="button" class="wui-button" data-toast-tone="success">عرض إشعار</button>
         </div>
       </section>
     </main>
@@ -157,7 +171,17 @@ $modal = Modal::render([
   <?php echo $modal; ?>
   <script src="/dist/js/modal.js"></script>
   <script src="/dist/js/busy.js"></script>
+  <script src="/dist/js/toast.js"></script>
   <script>
+    document.querySelectorAll('[data-toast-tone]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        WebiliaUI.toast.show(button.textContent.trim(), {
+          root: button.closest('[dir="rtl"]') || button.closest('.wui'),
+          tone: button.dataset.toastTone,
+          closeLabel: 'Dismiss notification'
+        });
+      });
+    });
     document.getElementById('confirm-demo').addEventListener('click', async function () {
       const accepted = await WebiliaUI.modal.confirm({ title: 'Delete this automation?', message: 'This action cannot be undone.', confirmLabel: 'Delete', cancelLabel: 'Cancel', danger: true });
       document.getElementById('confirm-result').textContent = accepted ? 'Confirmed' : 'Cancelled';

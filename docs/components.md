@@ -14,6 +14,8 @@ Load `tokens` and each component stylesheet that appears in a screen. Place ordi
 | Notice | `notice` | — | `Notice::render()` |
 | Spinner/loading | `feedback` | optional `busy` | — |
 | Modal/confirmation | `modal`, `buttons` | `modal` | `Modal::render()` |
+| Icons | `icons` | — | — |
+| Toast | `toast`, `icons` | `toast` | — |
 
 ## Layout, buttons, and surfaces
 
@@ -78,5 +80,43 @@ All renderer methods return HTML strings. They do not echo, translate, enqueue a
 `WebiliaUI.modal.init(root)` installs delegated click and keyboard handling once per root. Opening focuses the first control, Escape and backdrop clicks close, Tab remains within the top modal, body scrolling is locked, and focus returns to the opener. A programmatic confirmation returns `Promise<boolean>`; provide translated labels in its options. `wui:modal:opened` and `wui:modal:closed` events bubble from the modal element.
 
 `WebiliaUI.busy.setBusy(element, true)` sets `aria-busy`, adds `wui-is-loading`, and disables controls inside the element. Calling it with `false` restores only controls that helper disabled. `WebiliaUI.busy.isBusy(element)` reports the current state. Put a `<span class="wui-spinner" aria-hidden="true"></span>` beside an accessible loading label when a visible indicator is needed.
+
+## Icons and toast
+
+Load the icons stylesheet and font files, then use a decorative icon beside visible text:
+
+~~~html
+<span class="wui-icon wui-icon--stars" aria-hidden="true"></span>
+~~~
+
+For an icon-only button, put the accessible label on the button. All 139 names are in the [icon catalog](icons.md). The font family and classes are distinct from the older standalone webilia/icons package, so both may appear on a page.
+
+Toast is for short-lived feedback. It is independent of WordPress and jQuery:
+
+~~~js
+const toast = WebiliaUI.toast.show('Settings saved.', {
+  root: document.querySelector('.wui'),
+  tone: 'success',
+  position: 'bottom-right',
+  durationMs: 8000,
+  progress: true,
+  closeLabel: 'Dismiss notification',
+});
+toast.update('Save failed.', { tone: 'danger', durationMs: 8000 });
+toast.dismiss();
+~~~
+
+The show method returns an object with element, update(message, options), and dismiss(). Tones are neutral, info, success, warning, danger, and loading. Positions are top-left, top-center, top-right, bottom-left, bottom-center, and bottom-right. The default duration is 8000 ms; loading defaults to no timeout. Progress is on by default for timed toasts and can be disabled with progress: false. Hover or keyboard focus pauses the remaining time. Supply translated message and closeLabel from the product. Messages use textContent; HTML is not accepted. Toasts do not move focus. Use the modal component for decisions requiring action.
+
+The root option should be the product's .wui container so the toast inherits its color tokens. If omitted, the module creates a neutral .wui portal under body. Several toasts in the same root and position share a region. The toast stylesheet is scoped to .wui; its font-face declaration only registers a uniquely named font family.
+
+When importing the icon SCSS into a product build, set the font URLs for that build's output location:
+
+~~~scss
+@use "path/to/vendor/webilia/ui/assets/scss/components/icons" with (
+  $font-woff2-url: "/assets/fonts/webilia-ui-icons.woff2",
+  $font-woff-url: "/assets/fonts/webilia-ui-icons.woff"
+);
+~~~
 
 Use the default neutral tokens or override semantic `--wui-*` variables on a product's `.wui` root. Do not edit compiled component CSS to change branding.

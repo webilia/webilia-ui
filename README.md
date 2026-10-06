@@ -1,6 +1,6 @@
 # Webilia UI
 
-`webilia/ui` is a modular PHP, SCSS, and vanilla JavaScript UI package for Webilia products. Its core renderers work without WordPress; the WordPress asset adapter is opt-in. Version 1.0 provides the shared controls needed by WiBee's admin screens. WiBee integration is a separate task.
+`webilia/ui` is a modular PHP, SCSS, and vanilla JavaScript UI package for Webilia products. Its core renderers work without WordPress; the WordPress asset adapter is opt-in. Version 1.1 adds the Webilia icon font and toast notifications.
 
 ![Webilia UI playground showing the header, cards, and actions](docs/playground.png)
 
@@ -69,7 +69,7 @@ Or load the matching precompiled `dist/css/tokens.css`, `buttons.css`, and `form
 }
 ```
 
-Interactive modules are independent. `dist/js/modal.js` installs `window.WebiliaUI.modal`; `dist/js/busy.js` installs `window.WebiliaUI.busy`. The modal module auto-initializes on `document` and also offers `init(root)` for another root. Its delegated triggers work for markup added after initial load. Built scripts expose `open`, `close`, and Promise-based `confirm`; source ESM modules are in `assets/js/` for build pipelines.
+Interactive modules are independent. `dist/js/modal.js` installs `window.WebiliaUI.modal`; `dist/js/busy.js` installs `window.WebiliaUI.busy`; `dist/js/toast.js` installs `window.WebiliaUI.toast`. The modal module auto-initializes on `document` and also offers `init(root)` for another root. Its delegated triggers work for markup added after initial load. Built scripts expose `open`, `close`, and Promise-based `confirm`; source ESM modules are in `assets/js/` for build pipelines.
 
 ```html
 <button type="button" class="wui-button" data-wui-modal-open="example">Open</button>
@@ -88,6 +88,8 @@ const accepted = await WebiliaUI.modal.confirm({
 
 Translate JavaScript labels in the consuming product. Static components do not need a UI script.
 
+Icons use explicit `wui-icon` classes; toast messages are text and never parsed as HTML. Load `icons` for standalone icons or `toast` for notifications (which also loads icons). See the [icon catalog](docs/icons.md) and [component reference](docs/components.md) for markup, font paths, toast options, and accessibility details.
+
 ### WordPress asset adapter
 
 The adapter loads only selected styles and scripts. Call it only on your own screens and pass the URL to this package's root directory:
@@ -97,13 +99,13 @@ add_action('admin_enqueue_scripts', static function ($hook): void {
     if ($hook !== 'toplevel_page_wibee') return;
 
     \Webilia\UI\WordPress\Assets::enqueue(
-        ['header', 'layout', 'surfaces', 'forms', 'badge', 'notice', 'modal', 'busy'],
+        ['header', 'layout', 'surfaces', 'forms', 'badge', 'notice', 'modal', 'busy', 'toast'],
         plugins_url('vendor/webilia/ui/', __FILE__)
     );
 });
 ```
 
-The adapter resolves `header → buttons` and `modal → buttons`, and always loads tokens first. Other valid selections are `buttons` and `feedback`. Handles use `webilia-ui-v1-*`. Two plugins using the **same package version** share the first registered assets and the JS module initializes once. Coordinate upgrades when more than one plugin bundles Webilia UI; mixed versions are not a v1 compatibility guarantee. The package has no automatic WordPress hooks or frontend loading.
+The adapter resolves `header → buttons`, `modal → buttons`, and `toast → icons`, and always loads tokens first. Other valid selections are `buttons`, `feedback`, and `icons`. Handles use `webilia-ui-v1-*`. Two plugins using the **same package version** share the first registered assets and the JS module initializes once. Coordinate upgrades when more than one plugin bundles Webilia UI; mixed versions are not a v1 compatibility guarantee. The package has no automatic WordPress hooks or frontend loading.
 
 ## Development
 

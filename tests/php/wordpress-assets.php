@@ -31,13 +31,21 @@ check(isset($styles['webilia-ui-v1-tokens'], $styles['webilia-ui-v1-buttons'], $
 check(!isset($styles['webilia-ui-v1-modal']), 'Unselected modal style was enqueued.');
 check(!$scripts, 'Static components must not enqueue scripts.');
 
-Assets::enqueue(['modal', 'busy'], 'https://example.com/one/');
+Assets::enqueue(['icons'], 'https://example.com/one/');
+check(isset($styles['webilia-ui-v1-icons']), 'Icon font style missing.');
+check(!isset($styles['webilia-ui-v1-toast']), 'Icons must not load toast CSS.');
+check(!$scripts, 'Icons must not load JavaScript.');
+
+Assets::enqueue(['modal', 'busy', 'toast'], 'https://example.com/one/');
 check(isset($styles['webilia-ui-v1-modal'], $styles['webilia-ui-v1-feedback']), 'Interactive styles missing.');
-check(isset($scripts['webilia-ui-v1-modal'], $scripts['webilia-ui-v1-busy']), 'Interactive scripts missing.');
+check(isset($styles['webilia-ui-v1-toast'], $styles['webilia-ui-v1-icons']), 'Toast styles or icon dependency missing.');
+check(isset($scripts['webilia-ui-v1-modal'], $scripts['webilia-ui-v1-busy'], $scripts['webilia-ui-v1-toast']), 'Interactive scripts missing.');
 
 $firstSource = $scripts['webilia-ui-v1-modal']['source'];
-Assets::enqueue(['modal', 'busy'], 'https://example.com/two/');
+$firstToastSource = $scripts['webilia-ui-v1-toast']['source'];
+Assets::enqueue(['modal', 'busy', 'toast'], 'https://example.com/two/');
 check($scripts['webilia-ui-v1-modal']['source'] === $firstSource, 'Second same-version plugin replaced the shared script.');
-check(count($scripts) === 2, 'Duplicate scripts were registered.');
+check($scripts['webilia-ui-v1-toast']['source'] === $firstToastSource, 'Second same-version plugin replaced the shared toast script.');
+check(count($scripts) === 3, 'Duplicate scripts were registered.');
 
 echo "WordPress asset checks passed.\n";
