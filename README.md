@@ -1,6 +1,6 @@
 # Webilia UI
 
-`webilia/ui` is a modular PHP, SCSS, and vanilla JavaScript UI package for Webilia products. Its core renderers work without WordPress; the WordPress asset adapter is opt-in. Version 1.1 adds the Webilia icon font and toast notifications.
+`webilia/ui` is a modular PHP, SCSS, and vanilla JavaScript UI package for Webilia products. Its core renderers work without WordPress; the WordPress asset adapter is opt-in. Version 1.2 adds reusable breadcrumb navigation.
 
 ![Webilia UI playground showing the header, cards, and actions](docs/playground.png)
 

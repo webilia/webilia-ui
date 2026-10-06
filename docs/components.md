@@ -8,6 +8,7 @@ Load `tokens` and each component stylesheet that appears in a screen. Place ordi
 | Layout | `layout` | — | — |
 | Buttons | `buttons` | — | — |
 | Header | `header`, `buttons` | — | `Header::render()` |
+| Breadcrumb | `breadcrumb` | — | `Breadcrumb::render()` |
 | Forms | `forms` | — | — |
 | Surfaces | `surfaces` | — | — |
 | Badge | `badge` | — | `Badge::render()` |
@@ -66,6 +67,20 @@ Use native checkbox and radio inputs. Associate help/error text with the control
 ## PHP renderers
 
 `Header::render(array $props)` accepts `title`, `home_url`, trusted `mark_html`, optional `actions` (`label`, `url`, `variant`, `new_tab`), `nav_label`, and `nav` (`label`, `url`, `active`). Empty or unsupported URLs are omitted. Navigation uses `aria-current="page"` for the active link.
+
+`Breadcrumb::render(array $props)` accepts `items` in ancestor-to-current order, each with `label` and optional `url`, plus optional `aria_label` and `class`. The last item is always plain text with `aria-current="page"`; earlier items become links when their URLs are safe. Supply translated labels and navigation name from the product. Place the breadcrumb above the page's main section:
+
+```php
+echo Breadcrumb::render([
+    'aria_label' => __('Breadcrumb', 'your-text-domain'),
+    'items' => [
+        ['label' => __('Automations', 'your-text-domain'), 'url' => $automations_url],
+        ['label' => $automation_name],
+    ],
+]);
+```
+
+![Breadcrumb in the component playground](breadcrumb.jpg)
 
 `Badge::render(array $props)` accepts `label` and `tone`: `neutral`, `info`, `success`, `warning`, or `danger`.
 

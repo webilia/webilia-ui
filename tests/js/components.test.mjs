@@ -132,7 +132,7 @@ test('icon stylesheet maps all 139 glyphs to a packaged font', async () => {
 });
 
 test('compiled component rules stay under .wui', async () => {
-  for (const name of ['tokens', 'layout', 'buttons', 'header', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast']) {
+  for (const name of ['tokens', 'layout', 'buttons', 'header', 'breadcrumb', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast']) {
     const css = await readFile(resolve(root, `dist/css/${name}.css`), 'utf8');
     const sheet = postcss.parse(css);
     sheet.walkRules((rule) => {

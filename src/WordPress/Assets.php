@@ -11,6 +11,7 @@ final class Assets
         'layout' => ['style' => 'layout'],
         'buttons' => ['style' => 'buttons'],
         'header' => ['style' => 'header', 'requires' => ['buttons']],
+        'breadcrumb' => ['style' => 'breadcrumb'],
         'forms' => ['style' => 'forms'],
         'surfaces' => ['style' => 'surfaces'],
         'badge' => ['style' => 'badge'],

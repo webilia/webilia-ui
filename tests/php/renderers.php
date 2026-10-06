@@ -3,6 +3,7 @@
 require __DIR__ . '/bootstrap.php';
 
 use Webilia\UI\Badge;
+use Webilia\UI\Breadcrumb;
 use Webilia\UI\Header;
 use Webilia\UI\Modal;
 use Webilia\UI\Notice;
@@ -10,6 +11,21 @@ use Webilia\UI\Notice;
 $badge = Badge::render(['label' => '<script>alert(1)</script>', 'tone' => 'success']);
 check(strpos($badge, '<script>') === false, 'Badge must escape text.');
 check(strpos($badge, 'wui-badge--success') !== false, 'Badge tone missing.');
+
+$breadcrumb = Breadcrumb::render([
+    'aria_label' => 'Page trail',
+    'items' => [
+        ['label' => 'Automations', 'url' => '/admin.php?page=wibee&section=automation'],
+        ['label' => '<Daily Publish>', 'url' => '/should-not-link'],
+    ],
+]);
+check(strpos($breadcrumb, '<nav class="wui-breadcrumb" aria-label="Page trail">') !== false, 'Breadcrumb navigation is missing.');
+check(strpos($breadcrumb, 'href="/admin.php?page=wibee&amp;section=automation"') !== false, 'Breadcrumb ancestor link is missing.');
+check(strpos($breadcrumb, '&lt;Daily Publish&gt;') !== false, 'Breadcrumb must escape labels.');
+check(strpos($breadcrumb, 'aria-current="page"') !== false, 'Breadcrumb current item must be identified.');
+check(strpos($breadcrumb, '/should-not-link') === false, 'Breadcrumb current item must not be linked.');
+check(strpos(Breadcrumb::render(['items' => [['label' => 'Unsafe', 'url' => 'javascript:alert(1)'], ['label' => 'Current']]]), 'javascript:') === false, 'Breadcrumb must reject unsafe URLs.');
+check(Breadcrumb::render(['items' => []]) === '', 'Empty breadcrumb must render nothing.');
 
 $notice = Notice::render(['message' => '<b>Danger</b>', 'tone' => 'danger', 'detail' => 'Try again.']);
 check(strpos($notice, '&lt;b&gt;Danger&lt;/b&gt;') !== false, 'Notice must escape text.');
