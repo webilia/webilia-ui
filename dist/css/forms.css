@@ -1,0 +1,98 @@
+.wui .wui-form {
+  display: grid;
+  gap: var(--wui-space-4);
+}
+
+.wui .wui-field {
+  display: grid;
+  gap: var(--wui-space-2);
+  min-inline-size: 0;
+}
+
+.wui .wui-field__label {
+  color: var(--wui-color-text);
+  font-size: var(--wui-font-size-md);
+  font-weight: var(--wui-font-weight-semibold);
+}
+
+.wui .wui-field__help {
+  margin: 0;
+  color: var(--wui-color-muted);
+  font-size: var(--wui-font-size-sm);
+}
+
+.wui .wui-field__error {
+  margin: 0;
+  color: var(--wui-color-danger);
+  font-size: var(--wui-font-size-sm);
+}
+
+.wui .wui-input,
+.wui .wui-select,
+.wui .wui-textarea {
+  inline-size: 100%;
+  min-block-size: 38px;
+  max-inline-size: none;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--wui-color-border);
+  border-radius: var(--wui-radius-sm);
+  color: var(--wui-color-text);
+  background: var(--wui-color-surface);
+  font: var(--wui-font-weight-normal) var(--wui-font-size-md)/1.4 var(--wui-font-family);
+  box-shadow: none;
+}
+
+.wui .wui-textarea {
+  min-block-size: 90px;
+  resize: vertical;
+}
+
+.wui .wui-input:focus-visible,
+.wui .wui-select:focus-visible,
+.wui .wui-textarea:focus-visible {
+  border-color: var(--wui-color-focus);
+  outline: 2px solid var(--wui-color-focus);
+  outline-offset: 1px;
+  box-shadow: var(--wui-focus-ring);
+}
+
+.wui .wui-input[aria-invalid=true],
+.wui .wui-select[aria-invalid=true],
+.wui .wui-textarea[aria-invalid=true] {
+  border-color: var(--wui-color-danger);
+}
+
+.wui .wui-input:disabled,
+.wui .wui-select:disabled,
+.wui .wui-textarea:disabled {
+  color: var(--wui-color-muted);
+  background: var(--wui-color-disabled);
+  cursor: not-allowed;
+}
+
+.wui .wui-choice {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--wui-space-2);
+  color: var(--wui-color-text);
+  font-size: var(--wui-font-size-md);
+  cursor: pointer;
+}
+
+.wui .wui-choice input[type=checkbox],
+.wui .wui-choice input[type=radio] {
+  inline-size: 18px;
+  block-size: 18px;
+  margin: 1px 0 0;
+  accent-color: var(--wui-color-primary);
+}
+
+.wui .wui-choice input:focus-visible {
+  outline: 2px solid var(--wui-color-focus);
+  outline-offset: 2px;
+}
+
+.wui .wui-choice input:disabled {
+  cursor: not-allowed;
+}

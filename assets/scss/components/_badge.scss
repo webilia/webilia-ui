@@ -1,0 +1,5 @@
+.wui .wui-badge { display: inline-flex; align-items: center; min-block-size: 26px; padding: 3px 10px; border-radius: var(--wui-radius-pill); color: var(--wui-color-muted); background: var(--wui-color-background); font-size: var(--wui-font-size-sm); font-weight: var(--wui-font-weight-semibold); line-height: 1.2; }
+.wui .wui-badge--info { color: var(--wui-color-info); background: var(--wui-color-info-soft); }
+.wui .wui-badge--success { color: var(--wui-color-success); background: var(--wui-color-success-soft); }
+.wui .wui-badge--warning { color: var(--wui-color-warning); background: var(--wui-color-warning-soft); }
+.wui .wui-badge--danger { color: var(--wui-color-danger); background: var(--wui-color-danger-soft); }

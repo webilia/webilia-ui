@@ -1,0 +1,29 @@
+.wui .wui-spinner {
+  display: inline-block;
+  inline-size: 18px;
+  block-size: 18px;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  vertical-align: middle;
+  animation: wui-spin 700ms linear infinite;
+}
+
+.wui .wui-button[aria-busy=true] .wui-spinner {
+  margin-inline-end: var(--wui-space-1);
+}
+
+.wui [aria-busy=true] {
+  cursor: progress;
+}
+
+@keyframes wui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wui .wui-spinner {
+    animation-duration: 2s;
+  }
+}
