@@ -108,6 +108,19 @@ test('toast timeout pauses on hover and focus, then resumes', async () => {
   dom.window.close();
 });
 
+test('toast without a root uses a scoped portal and loading can become timed success', async () => {
+  const dom = await browserWith(['toast'], '<p>Outside Webilia UI</p>');
+  const { document, WebiliaUI } = dom.window;
+  const toast = WebiliaUI.toast.show('Working', { tone: 'loading', closeLabel: 'Dismiss' });
+  assert.equal(document.querySelector('body > .wui[data-wui-toast-scope] .wui-toast--loading'), toast.element);
+  assert.equal(toast.element.querySelector('.wui-toast__progress'), null);
+  toast.update('Done', { tone: 'success', durationMs: 25 });
+  assert.ok(toast.element.querySelector('.wui-toast__progress'));
+  await new Promise((resolve) => setTimeout(resolve, 45));
+  assert.equal(document.querySelector('[data-wui-toast-scope]'), null);
+  dom.window.close();
+});
+
 test('icon stylesheet maps all 139 glyphs to a packaged font', async () => {
   const css = await readFile(resolve(root, 'dist/css/icons.css'), 'utf8');
   const glyphs = css.match(/\.wui \.wui-icon--[a-z0-9-]+::before/g) || [];
