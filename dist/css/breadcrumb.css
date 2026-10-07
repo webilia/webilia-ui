@@ -19,6 +19,7 @@
   align-items: center;
   gap: var(--wui-space-1);
   margin: 0;
+  min-inline-size: 0;
 }
 
 .wui .wui-breadcrumb__separator {
@@ -28,6 +29,8 @@
 .wui .wui-breadcrumb__link {
   color: var(--wui-color-text);
   text-decoration: none;
+  overflow-wrap: anywhere;
+  min-inline-size: 0;
 }
 
 .wui .wui-breadcrumb__link:hover {
