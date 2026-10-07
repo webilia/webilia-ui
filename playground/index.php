@@ -8,6 +8,7 @@ spl_autoload_register(static function (string $class): void {
 });
 
 use Webilia\UI\Badge;
+use Webilia\UI\Breadcrumb;
 use Webilia\UI\Header;
 use Webilia\UI\Modal;
 use Webilia\UI\Notice;
@@ -41,7 +42,7 @@ $modal = Modal::render([
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Webilia UI Playground</title>
-  <?php foreach (['tokens', 'layout', 'buttons', 'header', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast'] as $style): ?>
+  <?php foreach (['tokens', 'layout', 'buttons', 'header', 'breadcrumb', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast'] as $style): ?>
     <link rel="stylesheet" href="/dist/css/<?php echo htmlspecialchars($style, ENT_QUOTES, 'UTF-8'); ?>.css">
   <?php endforeach; ?>
   <style>
@@ -68,6 +69,7 @@ $modal = Modal::render([
 
       <section id="foundations" class="playground-section">
         <h2>Foundations and surfaces</h2>
+        <?php echo Breadcrumb::render(['items' => [['label' => 'Automations', 'url' => '#foundations'], ['label' => 'Daily Publish']]]); ?>
         <div class="wui-grid" style="--wui-grid-columns: 4">
           <div class="playground-swatch playground-swatch--primary">Primary</div>
           <div class="playground-swatch playground-swatch--surface">Surface</div>
@@ -159,6 +161,7 @@ $modal = Modal::render([
 
       <section id="rtl" class="playground-section" dir="rtl">
         <h2>RTL example</h2>
+        <?php echo Breadcrumb::render(['items' => [['label' => 'الأتمتة', 'url' => '#rtl'], ['label' => 'نشر يومي']]]); ?>
         <div class="wui-card wui-stack">
           <div class="wui-inline"><button type="button" class="wui-button">פעולה ראשית</button><?php echo Badge::render(['label' => 'Active', 'tone' => 'info']); ?></div>
           <div class="wui-field"><label class="wui-field__label" for="rtl-input">שם</label><input class="wui-input" id="rtl-input" value="דוגמה"></div>

@@ -26,8 +26,8 @@ function wp_enqueue_script($handle, $source, $deps, $version, $footer): void
 Assets::enqueue([], 'https://example.com/one/');
 check(!$styles && !$scripts, 'Empty selection must enqueue nothing.');
 
-Assets::enqueue(['header', 'forms', 'badge'], 'https://example.com/one/');
-check(isset($styles['webilia-ui-v1-tokens'], $styles['webilia-ui-v1-buttons'], $styles['webilia-ui-v1-header'], $styles['webilia-ui-v1-forms'], $styles['webilia-ui-v1-badge']), 'Selected styles or dependencies missing.');
+Assets::enqueue(['header', 'breadcrumb', 'forms', 'badge'], 'https://example.com/one/');
+check(isset($styles['webilia-ui-v1-tokens'], $styles['webilia-ui-v1-buttons'], $styles['webilia-ui-v1-header'], $styles['webilia-ui-v1-breadcrumb'], $styles['webilia-ui-v1-forms'], $styles['webilia-ui-v1-badge']), 'Selected styles or dependencies missing.');
 check(!isset($styles['webilia-ui-v1-modal']), 'Unselected modal style was enqueued.');
 check(!$scripts, 'Static components must not enqueue scripts.');
 
