@@ -33,6 +33,11 @@
   min-inline-size: 0;
 }
 
+.wui .wui-breadcrumb__item > span:last-child {
+  overflow-wrap: anywhere;
+  min-inline-size: 0;
+}
+
 .wui .wui-breadcrumb__link:hover {
   color: var(--wui-color-primary);
   text-decoration: underline;

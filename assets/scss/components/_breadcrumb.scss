@@ -3,6 +3,7 @@
 .wui .wui-breadcrumb__item { display: inline-flex; align-items: center; gap: var(--wui-space-1); margin: 0; min-inline-size: 0; }
 .wui .wui-breadcrumb__separator { color: var(--wui-color-muted); }
 .wui .wui-breadcrumb__link { color: var(--wui-color-text); text-decoration: none; overflow-wrap: anywhere; min-inline-size: 0; }
+.wui .wui-breadcrumb__item > span:last-child { overflow-wrap: anywhere; min-inline-size: 0; }
 .wui .wui-breadcrumb__link:hover { color: var(--wui-color-primary); text-decoration: underline; }
 .wui .wui-breadcrumb__link:focus-visible { outline: 2px solid var(--wui-color-focus); outline-offset: 2px; }
 .wui .wui-breadcrumb [aria-current="page"] { color: var(--wui-color-text); font-weight: var(--wui-font-weight-semibold); overflow-wrap: anywhere; }
