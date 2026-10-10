@@ -77,11 +77,32 @@
   outline-offset: -2px;
 }
 
+.wui.wui-admin-header {
+  margin-inline-start: -20px;
+  inline-size: calc(100% + 20px);
+}
+
 @media (max-width: 782px) {
   .wui .wui-header__top {
     padding-inline: var(--wui-space-4);
   }
   .wui .wui-header__nav {
     padding-inline: var(--wui-space-4);
+  }
+  .wui.wui-admin-header {
+    margin-inline-start: -10px;
+    inline-size: calc(100% + 10px);
+  }
+  .wui.wui-admin-header:where(#wpwrap.wp-responsive-open *) {
+    position: relative;
+    inset-inline-start: 16em;
+  }
+}
+@media (max-width: 600px) {
+  .wui.wui-admin-header {
+    padding-block-start: 46px;
+  }
+  .wui.wui-admin-header ~ #wpbody {
+    padding-block-start: 0;
   }
 }
