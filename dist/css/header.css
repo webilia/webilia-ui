@@ -93,12 +93,16 @@
     margin-inline-start: -10px;
     inline-size: calc(100% + 10px);
   }
+  .wui.wui-admin-header:where(#wpwrap.wp-responsive-open *) {
+    position: relative;
+    inset-inline-start: 16em;
+  }
 }
 @media (max-width: 600px) {
   .wui.wui-admin-header {
     padding-block-start: 46px;
   }
-  .wui.wui-admin-header + #wpbody {
+  .wui.wui-admin-header ~ #wpbody {
     padding-block-start: 0;
   }
 }

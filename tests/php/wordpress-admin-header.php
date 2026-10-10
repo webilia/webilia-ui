@@ -6,6 +6,7 @@ use Webilia\UI\WordPress\AdminHeader;
 
 $actions = [];
 $screen = null;
+$hook_suffix = null;
 $propsCalls = 0;
 
 function add_action($hook, $callback): void
@@ -32,12 +33,14 @@ $actions['in_admin_header'][0]();
 check(ob_get_clean() === '', 'Header must not render without a screen.');
 
 $screen = (object) ['id' => 'dashboard'];
+$hook_suffix = 'dashboard';
 ob_start();
 $actions['in_admin_header'][0]();
 check(ob_get_clean() === '', 'Header must not render on other screens.');
 check($propsCalls === 0, 'Other screens must not resolve product header properties.');
 
 $screen = (object) ['id' => 'toplevel_page_example'];
+$hook_suffix = 'toplevel_page_example';
 ob_start();
 $actions['in_admin_header'][0]();
 $html = ob_get_clean();
@@ -45,5 +48,21 @@ check(strpos($html, 'class="wui wui-admin-header product-admin"') !== false, 'He
 check(strpos($html, 'class="wui-header"') !== false, 'Header renderer was not used.');
 check(strpos($html, 'Example') !== false, 'Product title is missing.');
 check($propsCalls === 1, 'Header properties should resolve only on the intended screen.');
+
+$screen = (object) ['id' => 'toplevel_page_example-network'];
+ob_start();
+$actions['in_admin_header'][0]();
+check(ob_get_clean() === $html, 'Header must render for its Network Admin menu hook.');
+
+$screen = (object) ['id' => 'toplevel_page_example-user'];
+ob_start();
+$actions['in_admin_header'][0]();
+check(ob_get_clean() === $html, 'Header must render for its User Admin menu hook.');
+
+$hook_suffix = 'toplevel_page_other';
+ob_start();
+$actions['in_admin_header'][0]();
+check(ob_get_clean() === '', 'Header must not render for another menu hook.');
+check($propsCalls === 3, 'Header properties should resolve only for the intended menu hook.');
 
 echo "WordPress admin header checks passed.\n";

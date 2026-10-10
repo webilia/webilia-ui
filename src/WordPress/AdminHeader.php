@@ -16,7 +16,9 @@ final class AdminHeader
     {
         add_action('in_admin_header', static function () use ($screenId, $props, $wrapperClass): void {
             $screen = get_current_screen();
-            if (!$screen || $screen->id !== $screenId) {
+            // Menu APIs return a hook suffix. Network and User Admin append a
+            // context suffix to the screen ID, but not to this hook suffix.
+            if (!$screen || ($GLOBALS['hook_suffix'] ?? null) !== $screenId) {
                 return;
             }
 
