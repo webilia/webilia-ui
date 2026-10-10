@@ -11,7 +11,18 @@
 .wui .wui-header__nav-link.is-active { color: var(--wui-color-primary); border-block-end-color: var(--wui-color-primary); text-decoration: none; }
 .wui .wui-header__nav-link:focus-visible { outline: 2px solid var(--wui-color-focus); outline-offset: -2px; }
 
+// WordPress reserves an inline gutter for page content. The early admin header
+// sits directly in #wpcontent, so let it meet the admin menu edge.
+.wui.wui-admin-header { margin-inline-start: -20px; inline-size: calc(100% + 20px); }
+
 @media (max-width: 782px) {
   .wui .wui-header__top { padding-inline: var(--wui-space-4); }
   .wui .wui-header__nav { padding-inline: var(--wui-space-4); }
+  .wui.wui-admin-header { margin-inline-start: -10px; inline-size: calc(100% + 10px); }
+}
+
+@media (max-width: 600px) {
+  // Core puts the mobile toolbar offset on #wpbody, after this header.
+  .wui.wui-admin-header { padding-block-start: 46px; }
+  .wui.wui-admin-header + #wpbody { padding-block-start: 0; }
 }
