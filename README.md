@@ -107,6 +107,23 @@ add_action('admin_enqueue_scripts', static function ($hook): void {
 
 The adapter resolves `header → buttons`, `modal → buttons`, and `toast → icons`, and always loads tokens first. Other valid selections are `buttons`, `feedback`, and `icons`. Handles use `webilia-ui-v1-*`. Two plugins using the **same package version** share the first registered assets and the JS module initializes once. Coordinate upgrades when more than one plugin bundles Webilia UI; mixed versions are not a v1 compatibility guarantee. The package has no automatic WordPress hooks or frontend loading.
 
+### WordPress admin headers before notices
+
+WordPress prints admin notices before a plugin page callback. To place a Webilia UI header above those notices in the HTML, register it on WordPress's earlier `in_admin_header` hook. The adapter is opt-in and checks the current screen before resolving the product's header properties:
+
+```php
+$hook = add_menu_page(/* product page arguments */);
+
+\Webilia\UI\WordPress\AdminHeader::register($hook, static function (): array {
+    return [
+        'title' => __('Example', 'example'),
+        'home_url' => admin_url('admin.php?page=example'),
+    ];
+}, 'example-admin');
+```
+
+The adapter renders a `.wui.wui-admin-header` wrapper and accepts optional product classes for styling. Enqueue the `header` component on the same screen. Do not render the header again in the page callback. WordPress continues to render its own notices in their normal location below the header.
+
 ## Development
 
 ```bash
