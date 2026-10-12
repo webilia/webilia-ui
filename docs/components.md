@@ -135,3 +135,49 @@ When importing the icon SCSS into a product build, set the font URLs for that bu
 ~~~
 
 Use the default neutral tokens or override semantic `--wui-*` variables on a product's `.wui` root. Do not edit compiled component CSS to change branding.
+
+## Announcement Center and feedback (1.4)
+
+Header actions still accept links. A button action accepts `type: button`, `label`, `icon`, `target` (dialog ID), and optional `count`. Use `icon: bell` for the built-in SVG notification bell. `count_label` is a translated template containing `{count}`; it defaults to the label followed by the count. Zero hides the visual badge and keeps the button usable.
+
+`AnnouncementCenter::render()` accepts `id`, `title`, `labels`, `active`, and `dismissed`. Each item accepts `id`, `title`, `description_html`, `severity`, `date` (ISO timestamp), `date_label`, and optional `url`/`cta_label`. **`description_html` is a trusted slot: sanitize it before passing it to PHP or JavaScript.** Labels include `tabs`, `active`, `dismissed`, `dismiss`, `close`, `empty_active`, `empty_dismissed`, `loading`, and `error`.
+
+Load `modal.js` before `announcements.js`, or enqueue the `announcements` WordPress component. Initialize once per dialog:
+
+```js
+WebiliaUI.announcements.init(document.getElementById('product-announcements'), {
+  items: initialItems, // each has state: 'active' or 'dismissed'
+  labels: translatedLabels,
+  unavailable: false,
+  scope: 'site-1', // matching IDs in this scope share dismissal updates
+  load: async () => ({ items: await loadItems(), unavailable: false }),
+  dismiss: async id => persistDismissal(id)
+});
+```
+
+`load` runs when opened; the returned controller also exposes `refresh()`. Failed retrieval/dismissal shows the configured error. Dates use localized relative days. Dismissals move matching IDs in mounted centers within the same scope only after persistence succeeds. Transport callbacks own authorization and HTML sanitization. Repeated initialization returns the existing controller.
+
+`DeactivationFeedbackDialog::render()` accepts `id`, `title`, `description`, `reasons` (keyed by reason code), `disclosure`, optional `privacy_url`/`support_url`, and `labels`. Each reason contains `title`, optional icon name, and optional `placeholder` enabling an optional details textarea. Labels include `reason`, `details`, `skip`, `cancel`, `submit`, `close`, `privacy`, and `support`. Translate the disclosure and explain that submitting sends the site URL, selected reason and optional comments to Webilia.
+
+Load `modal.js` before `deactivation.js`, or enqueue `deactivation`:
+
+```js
+WebiliaUI.deactivation.init(document.getElementById('product-feedback'), {
+  reasonRequired: translatedReasonError,
+  error: translatedSubmissionError,
+  submit: async ({ reason, details }) => sendFeedback(reason, details),
+  complete: () => followOriginalDeactivationLink(),
+  skip: () => followOriginalDeactivationLink(),
+  cancel: () => {} // no submission or deactivation
+});
+```
+
+Only `submit` sends feedback. Failures retain Skip; cancelling prevents late submission completion from applying an action. Events are `wui:feedback:skip`, `wui:feedback:cancel`, and `wui:feedback:submitted`. These components contain no WordPress requests, plugin identity, or navigation logic. See the playground for empty states, dismissal and simulated feedback failure.
+
+### Engagement previews
+
+![Announcement drawer](announcement-center.jpg)
+![Submission failure with Skip available](deactivation-feedback.jpg)
+![Feedback at phone width](deactivation-feedback-mobile.jpg)
+
+Open `/playground/?rtl=1` to exercise the full page and drawer in RTL.

@@ -48,4 +48,9 @@ check($scripts['webilia-ui-v1-modal']['source'] === $firstSource, 'Second same-v
 check($scripts['webilia-ui-v1-toast']['source'] === $firstToastSource, 'Second same-version plugin replaced the shared toast script.');
 check(count($scripts) === 3, 'Duplicate scripts were registered.');
 
+Assets::enqueue(['announcements', 'deactivation'], 'https://example.com/one/');
+check($scripts['webilia-ui-v1-announcements']['deps'] === ['webilia-ui-v1-modal'], 'Announcement script must wait for modal.');
+check($scripts['webilia-ui-v1-deactivation']['deps'] === ['webilia-ui-v1-modal'], 'Feedback script must wait for modal.');
+check(isset($styles['webilia-ui-v1-forms'], $styles['webilia-ui-v1-icons'], $styles['webilia-ui-v1-badge']), 'Engagement dependencies missing.');
+
 echo "WordPress asset checks passed.\n";

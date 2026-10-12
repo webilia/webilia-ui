@@ -32,6 +32,9 @@ export function open(target) {
     document.body.style.overflow = 'hidden';
   }
   modal.hidden = false;
+  for (const trigger of document.querySelectorAll('[data-wui-modal-open][aria-expanded]')) {
+    if (trigger.dataset.wuiModalOpen === modal.id) trigger.setAttribute('aria-expanded', 'true');
+  }
   openModals.push(modal);
   focusFirst(modal);
   modal.dispatchEvent(new CustomEvent('wui:modal:opened', { bubbles: true }));
@@ -43,6 +46,9 @@ export function close(target) {
   if (!modal?.matches('[data-wui-modal]') || modal.hidden) return false;
 
   modal.hidden = true;
+  for (const trigger of document.querySelectorAll('[data-wui-modal-open][aria-expanded]')) {
+    if (trigger.dataset.wuiModalOpen === modal.id) trigger.setAttribute('aria-expanded', 'false');
+  }
   const index = openModals.indexOf(modal);
   if (index !== -1) openModals.splice(index, 1);
   if (openModals.length === 0) document.body.style.overflow = savedBodyOverflow;

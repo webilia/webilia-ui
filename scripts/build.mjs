@@ -6,8 +6,8 @@ import * as sass from 'sass';
 const root = resolve(import.meta.dirname, '..');
 const cssDir = resolve(root, 'dist/css');
 const jsDir = resolve(root, 'dist/js');
-const styles = ['tokens', 'layout', 'buttons', 'header', 'breadcrumb', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast'];
-const scripts = ['modal', 'busy', 'toast'];
+const styles = ['tokens', 'layout', 'buttons', 'header', 'breadcrumb', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast', 'announcements', 'deactivation'];
+const scripts = ['modal', 'busy', 'toast', 'announcements', 'deactivation'];
 
 await mkdir(cssDir, { recursive: true });
 await mkdir(jsDir, { recursive: true });

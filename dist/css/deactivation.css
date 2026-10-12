@@ -1,0 +1,24 @@
+.wui .wui-deactivation__reason {
+  margin-block: var(--wui-space-3);
+}
+
+.wui .wui-deactivation__reason > label {
+  display: flex;
+  align-items: center;
+  gap: var(--wui-space-2);
+}
+
+.wui .wui-deactivation__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wui-space-2);
+  margin-block-start: var(--wui-space-4);
+}
+
+.wui [data-wui-reason-details][hidden] {
+  display: none;
+}
+
+.wui [data-wui-feedback-error] {
+  color: var(--wui-color-danger);
+}

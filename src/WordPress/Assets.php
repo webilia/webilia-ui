@@ -8,6 +8,8 @@ use Webilia\UI\Version;
 final class Assets
 {
     private const COMPONENTS = [
+        'announcements' => ['style' => 'announcements', 'script' => 'announcements', 'requires' => ['modal', 'icons', 'badge']],
+        'deactivation' => ['style' => 'deactivation', 'script' => 'deactivation', 'requires' => ['modal', 'forms', 'icons']],
         'layout' => ['style' => 'layout'],
         'buttons' => ['style' => 'buttons'],
         'header' => ['style' => 'header', 'requires' => ['buttons']],
@@ -46,7 +48,8 @@ final class Assets
             self::style($item['style'], $base);
             if (isset($item['script'])) {
                 $handle = 'webilia-ui-v1-' . $item['script'];
-                wp_enqueue_script($handle, $base . 'js/' . $item['script'] . '.js', [], Version::VALUE, true);
+                $deps = in_array($item['script'], ['announcements', 'deactivation'], true) ? ['webilia-ui-v1-modal'] : [];
+                wp_enqueue_script($handle, $base . 'js/' . $item['script'] . '.js', $deps, Version::VALUE, true);
             }
         }
     }

@@ -1,11 +1,11 @@
 {
   "name": "@webilia/ui-build",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test tests/js/*.test.mjs",
-    "test:php": "php tests/php/renderers.php && php tests/php/wordpress-assets.php && php tests/php/wordpress-admin-header.php",
+    "test:php": "php tests/php/renderers.php && php tests/php/wordpress-assets.php && php tests/php/wordpress-admin-header.php && php tests/php/engagement.php",
     "check": "npm run build && npm test && npm run test:php"
   },
   "devDependencies": {
