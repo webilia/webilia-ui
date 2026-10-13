@@ -19,8 +19,15 @@ final class Notice
             ? '<p class="wui-notice__detail">' . Html::escape($props['detail']) . '</p>'
             : '';
 
+        // This explicit slot accepts only trusted, consumer-sanitized HTML.
+        $message = array_key_exists('message_html', $props)
+            ? '<div class="wui-notice__message">' . (string) $props['message_html'] . '</div>'
+            : '<p class="wui-notice__message">' . Html::escape($props['message'] ?? '') . '</p>';
+        $dismiss = !empty($props['dismissible'])
+            ? '<button type="button" class="wui-button wui-button--icon wui-notice__dismiss" data-wui-notice-dismiss aria-label="'
+                . Html::escape($props['dismiss_label'] ?? 'Dismiss notice') . '"><span aria-hidden="true">&times;</span></button>'
+            : '';
         return '<div class="' . Html::escape($class) . '" role="' . $role . '" aria-live="' . $live . '">'
-            . '<p class="wui-notice__message">' . Html::escape($props['message'] ?? '') . '</p>'
-            . $detail . '</div>';
+            . '<div class="wui-notice__content">' . $message . $detail . '</div>' . $dismiss . '</div>';
     }
 }

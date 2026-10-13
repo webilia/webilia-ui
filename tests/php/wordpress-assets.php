@@ -57,3 +57,5 @@ check($scripts['webilia-ui-v1-deactivation']['deps'] === ['webilia-ui-v1-modal']
 check(isset($styles['webilia-ui-v1-forms'], $styles['webilia-ui-v1-icons'], $styles['webilia-ui-v1-badge']), 'Engagement dependencies missing.');
 
 echo "WordPress asset checks passed.\n";
+Assets::enqueue(['notice-dismiss'], 'https://example.com/one/');
+check(isset($scripts['webilia-ui-v1-notice'], $styles['webilia-ui-v1-buttons']), 'Dismissible notice dependencies missing.');

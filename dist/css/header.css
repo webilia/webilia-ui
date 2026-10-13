@@ -46,6 +46,25 @@
   gap: var(--wui-space-2);
 }
 
+.wui .wui-header__version {
+  color: var(--wui-color-muted);
+  font-size: var(--wui-font-size-sm);
+}
+
+.wui .wui-header__page {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--wui-space-3);
+  padding: var(--wui-space-3) var(--wui-space-5);
+}
+
+.wui .wui-header__page-title {
+  margin: 0;
+  font-size: var(--wui-font-size-lg);
+  color: var(--wui-color-text);
+}
+
 .wui .wui-header__nav {
   display: flex;
   flex-wrap: wrap;

@@ -1,9 +1,51 @@
 const initializedRoots = new WeakSet();
 const openModals = [];
 const previousFocus = new WeakMap();
+const formObservers = new WeakMap();
+const modalParents = new WeakMap();
+const formControls = 'button, input, select, textarea, fieldset, output, object';
 const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 let savedBodyOverflow = '';
 let confirmSequence = 0;
+let formSequence = 0;
+
+function associateForm(modal) {
+  const owner = modal.dataset.wuiModalForm;
+  if (!owner) return;
+  for (const control of modal.querySelectorAll(formControls)) {
+    // Nested forms and explicit owners take precedence over the modal owner.
+    if (control.hasAttribute('form') || control.closest('form')) continue;
+    control.setAttribute('form', owner);
+  }
+}
+
+function prepareModal(modal) {
+  if (!modal.dataset.wuiModalForm) {
+    const form = modal.closest('form');
+    if (form) {
+      if (!form.id) {
+        let id;
+        do { id = `wui-modal-owner-${++formSequence}`; }
+        while (document.getElementById(id));
+        form.id = id;
+      }
+      modal.dataset.wuiModalForm = form.id;
+    }
+  }
+  if (modal.dataset.wuiModalMount === 'body' && modal.parentElement !== document.body) {
+    document.body.append(modal);
+  }
+  associateForm(modal);
+  if (modal.dataset.wuiModalForm && !formObservers.has(modal)) {
+    const observer = new MutationObserver(() => associateForm(modal));
+    observer.observe(modal, { childList: true, subtree: true });
+    formObservers.set(modal, observer);
+  }
+}
+
+function updateLayers() {
+  openModals.forEach((modal, index) => modal.style.setProperty('--wui-modal-stack', String(index)));
+}
 
 function elementFor(target) {
   if (target instanceof Element) return target;
@@ -27,15 +69,19 @@ export function open(target) {
   if (!modal.hidden) return true;
 
   previousFocus.set(modal, document.activeElement instanceof HTMLElement ? document.activeElement : null);
+  const parent = openModals[openModals.length - 1];
+  if (parent && (parent.contains(modal) || parent.contains(document.activeElement))) modalParents.set(modal, parent);
+  prepareModal(modal);
   if (openModals.length === 0) {
     savedBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
   }
   modal.hidden = false;
   for (const trigger of document.querySelectorAll('[data-wui-modal-open][aria-expanded]')) {
-    if (trigger.dataset.wuiModalOpen === modal.id) trigger.setAttribute('aria-expanded', 'true');
+    if (trigger.dataset.wuiModalOpen.replace(/^#/, '') === modal.id) trigger.setAttribute('aria-expanded', 'true');
   }
   openModals.push(modal);
+  updateLayers();
   focusFirst(modal);
   modal.dispatchEvent(new CustomEvent('wui:modal:opened', { bubbles: true }));
   return true;
@@ -45,12 +91,21 @@ export function close(target) {
   const modal = elementFor(target);
   if (!modal?.matches('[data-wui-modal]') || modal.hidden) return false;
 
+  for (const child of [...openModals].reverse()) {
+    if (child !== modal && (modal.contains(child) || modalParents.get(child) === modal)) close(child);
+  }
+
   modal.hidden = true;
   for (const trigger of document.querySelectorAll('[data-wui-modal-open][aria-expanded]')) {
-    if (trigger.dataset.wuiModalOpen === modal.id) trigger.setAttribute('aria-expanded', 'false');
+    if (trigger.dataset.wuiModalOpen.replace(/^#/, '') === modal.id) trigger.setAttribute('aria-expanded', 'false');
   }
   const index = openModals.indexOf(modal);
   if (index !== -1) openModals.splice(index, 1);
+  formObservers.get(modal)?.disconnect();
+  formObservers.delete(modal);
+  modalParents.delete(modal);
+  modal.style.removeProperty('--wui-modal-stack');
+  updateLayers();
   if (openModals.length === 0) document.body.style.overflow = savedBodyOverflow;
 
   const focusTarget = previousFocus.get(modal);
@@ -93,7 +148,7 @@ function onKeydown(event) {
   if (event.key === 'Escape') {
     event.__wuiModalHandled = true;
     event.preventDefault();
-    close(modal);
+    if (modal.dataset.wuiModalEscapeClose !== '0') close(modal);
     return;
   }
   if (event.key !== 'Tab') return;
@@ -121,6 +176,9 @@ export function init(root = document) {
   initializedRoots.add(root);
   root.addEventListener('click', onClick);
   root.addEventListener('keydown', onKeydown);
+  root.addEventListener('submit', () => {
+    for (const modal of document.querySelectorAll('[data-wui-modal-form]')) associateForm(modal);
+  }, true);
 }
 
 export function confirm(options = {}) {

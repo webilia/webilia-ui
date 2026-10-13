@@ -92,6 +92,50 @@ All renderer methods return HTML strings. They do not echo, translate, enqueue a
 
 ## Interaction and state
 
+### Product parity options (1.4)
+
+`Header::render()` additionally accepts escaped `version`, `page_title`, and `title_actions`
+(`label`, `url`). Product branding remains in `title`; the page heading is a separate `h1`.
+Consumers authorize actions before supplying them. Unsafe action URLs are omitted.
+
+`Modal::render()` additionally accepts `size: xl`, `panel_class`, `body_class`,
+`escape_close`, `backdrop_close`, `close_button` (all close options default to true),
+and `mount_to_body` (default false). Supply the product theme class on the modal itself
+when mounting under body. Do not remove Escape, backdrop and close-button access together
+unless the body/footer provides an operable exit.
+
+For a modal with its own form, pass `form: true` and `form_attributes`; the wrapper owns
+the body and footer. Attributes accept ordinary form attributes plus `data-*` and `aria-*`;
+event-handler attributes are rejected and action URLs are checked. Do not include another
+form in the trusted body/footer when this wrapper is enabled.
+
+For fields belonging to an outside form, pass `form_id` or render the modal inside that
+form before opening. The controller captures the owner before optional body mounting,
+sets native `form` associations, and associates dynamic controls while open and before
+submission. Explicit `form` attributes and nested forms take precedence. Serialize the
+actual form (`FormData(form)` or its `elements`), not only its DOM descendants.
+Nested dialogs have ordered layers, focus return, and shared scroll locking.
+
+`Notice::render()` additionally accepts `message_html` as an explicit **trusted HTML slot**;
+sanitize user/API HTML before supplying it. `message` remains escaped text. Optional
+`dismissible: true` and translated `dismiss_label` add a close button; enqueue
+`notice-dismiss` (or load `notice.js` plus buttons) for delegated dismissal. Plain notices
+remain static and persistent by default. Dismissal emits `wui:notice:dismissed` before removal.
+Never turn persistent actionable errors into timed toasts.
+
+`WebiliaUI.busy.setBusy(element, busy, { controls: iterable })` optionally selects controls,
+including the element itself when it is a button. Already-disabled controls remain disabled
+after loading finishes. The default still selects descendant controls only.
+
+`DeactivationFeedbackDialog::render()` additionally accepts optional `terms_url` and
+`labels.terms`, with the same URL checks and escaped labels as privacy/support links.
+The WP adapter forwards these properties without adding a second transport.
+
+The [consumer parity playground](../playground/parity.php) exercises these options.
+
+![External form fields in an XL dialog](parity-desktop.png)
+![Mobile RTL feedback with an operable Skip action](parity-mobile-rtl.png)
+
 `WebiliaUI.modal.init(root)` installs delegated click and keyboard handling once per root. Opening focuses the first control, Escape and backdrop clicks close, Tab remains within the top modal, body scrolling is locked, and focus returns to the opener. A programmatic confirmation returns `Promise<boolean>`; provide translated labels in its options. `wui:modal:opened` and `wui:modal:closed` events bubble from the modal element.
 
 `WebiliaUI.busy.setBusy(element, true)` sets `aria-busy`, adds `wui-is-loading`, and disables controls inside the element. Calling it with `false` restores only controls that helper disabled. `WebiliaUI.busy.isBusy(element)` reports the current state. Put a `<span class="wui-spinner" aria-hidden="true"></span>` beside an accessible loading label when a visible indicator is needed.

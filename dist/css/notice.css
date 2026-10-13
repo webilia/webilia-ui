@@ -1,9 +1,21 @@
 .wui .wui-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--wui-space-3);
   padding: var(--wui-space-3) var(--wui-space-4);
   border-inline-start: 4px solid var(--wui-color-info);
   border-radius: var(--wui-radius-sm);
   color: var(--wui-color-text);
   background: var(--wui-color-info-soft);
+}
+
+.wui .wui-notice__content {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.wui .wui-notice__dismiss {
+  flex-shrink: 0;
 }
 
 .wui .wui-notice--success {
