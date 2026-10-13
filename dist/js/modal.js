@@ -42,7 +42,8 @@ var __wuiModule = (() => {
     const owner = modal.dataset.wuiModalForm;
     if (!owner) return;
     for (const control of modal.querySelectorAll(formControls)) {
-      if (control.hasAttribute("form") || control.closest("form")) continue;
+      const form = control.closest("form");
+      if (control.hasAttribute("form") || form && modal.contains(form)) continue;
       control.setAttribute("form", owner);
     }
   }
@@ -60,8 +61,9 @@ var __wuiModule = (() => {
         modal.dataset.wuiModalForm = form.id;
       }
     }
-    if (modal.dataset.wuiModalMount === "body" && modal.parentElement !== document.body) {
-      document.body.append(modal);
+    if (modal.dataset.wuiModalMount === "body") {
+      init(document);
+      if (modal.parentElement !== document.body) document.body.append(modal);
     }
     associateForm(modal);
     if (modal.dataset.wuiModalForm && !formObservers.has(modal)) {
@@ -109,7 +111,6 @@ var __wuiModule = (() => {
     return true;
   }
   function close(target) {
-    var _a;
     const modal = elementFor(target);
     if (!(modal == null ? void 0 : modal.matches("[data-wui-modal]")) || modal.hidden) return false;
     for (const child of [...openModals].reverse()) {
@@ -121,8 +122,6 @@ var __wuiModule = (() => {
     }
     const index = openModals.indexOf(modal);
     if (index !== -1) openModals.splice(index, 1);
-    (_a = formObservers.get(modal)) == null ? void 0 : _a.disconnect();
-    formObservers.delete(modal);
     modalParents.delete(modal);
     modal.style.removeProperty("--wui-modal-stack");
     updateLayers();

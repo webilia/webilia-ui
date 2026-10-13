@@ -7,11 +7,13 @@ import postcss from 'postcss';
 
 const root = resolve(import.meta.dirname, '../..');
 
-async function browserWith(scripts, html) {
+async function browserWith(scripts, html, autoInit = true) {
   const dom = new JSDOM(html, { runScripts: 'outside-only', url: 'https://example.com/' });
   dom.window.HTMLElement.prototype.getClientRects = function () { return [{ width: 1, height: 1 }]; };
   for (const script of scripts) {
-    dom.window.eval(await readFile(resolve(root, `dist/js/${script}.js`), 'utf8'));
+    let source = await readFile(resolve(root, `dist/js/${script}.js`), 'utf8');
+    if (!autoInit) source = source.replace('__wuiModule.init(document);', '');
+    dom.window.eval(source);
   }
   return dom;
 }
@@ -226,5 +228,59 @@ test('busy state supports explicit controls including the target button', async 
   WebiliaUI.busy.setBusy(target, false);
   assert.equal(target.disabled, false);
   assert.equal(document.getElementById('disabled').disabled, true);
+  dom.window.close();
+});
+
+test('root-only modal initialization keeps mounted close, Escape and focus trapping reachable', async () => {
+  const dom = await browserWith(['modal'], '<div id="product"><button id="open" data-wui-modal-open="m">Open</button><div id="m" data-wui-modal data-wui-modal-mount="body" hidden><div class="wui-modal__panel" tabindex="-1"><button id="first">First</button><button id="last" data-wui-modal-close>Close</button></div></div></div>', false);
+  const { document, WebiliaUI, KeyboardEvent } = dom.window;
+  WebiliaUI.modal.init(document.getElementById('product'));
+  let opened = 0;
+  document.getElementById('m').addEventListener('wui:modal:opened', () => opened++);
+  document.getElementById('open').focus();
+  document.getElementById('open').click();
+  assert.equal(opened, 1);
+  document.getElementById('last').focus();
+  document.getElementById('last').dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+  assert.equal(document.activeElement.id, 'first');
+  document.getElementById('last').click();
+  assert.equal(document.getElementById('m').hidden, true);
+  document.getElementById('open').click();
+  document.getElementById('m').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+  assert.equal(document.getElementById('m').hidden, true);
+  assert.equal(document.activeElement.id, 'open');
+  dom.window.close();
+});
+
+test('explicit modal owner overrides ancestor form and respects nested/explicit owners', async () => {
+  const dom = await browserWith(['modal'], '<form id="ancestor"><div id="m" data-wui-modal data-wui-modal-form="requested" hidden><div class="wui-modal__panel" tabindex="-1"><input name="setting" value="yes"><input name="explicit" form="ancestor" value="kept"></div></div></form><form id="requested"></form>');
+  const { document, WebiliaUI, FormData } = dom.window;
+  const nested = document.createElement('form');
+  nested.id = 'nested';
+  nested.innerHTML = '<input name="nested-setting" value="inside">';
+  document.querySelector('#m .wui-modal__panel').append(nested);
+  WebiliaUI.modal.open('m');
+  assert.equal(document.querySelector('[name="setting"]').form.id, 'requested');
+  assert.equal(document.querySelector('[name="explicit"]').form.id, 'ancestor');
+  assert.equal(document.querySelector('[name="nested-setting"]').form.id, 'nested');
+  assert.deepEqual([...new FormData(document.getElementById('requested')).entries()], [['setting', 'yes']]);
+  assert.equal(document.getElementById('m').parentElement.id, 'ancestor');
+  dom.window.close();
+});
+
+test('closed mounted modal associates newly rendered required fields before validation', async () => {
+  const dom = await browserWith(['modal'], '<form id="owner"><div id="m" data-wui-modal data-wui-modal-mount="body" hidden><div class="wui-modal__panel" tabindex="-1"><input name="initial" value="yes"></div></div></form>');
+  const { document, WebiliaUI } = dom.window;
+  WebiliaUI.modal.open('m');
+  WebiliaUI.modal.close('m');
+  document.querySelector('#m .wui-modal__panel').insertAdjacentHTML('beforeend', '<input name="required-later" required>');
+  await Promise.resolve();
+  const form = document.getElementById('owner');
+  assert.equal(document.querySelector('[name="required-later"]').form, form);
+  let submitted = 0;
+  form.addEventListener('submit', event => { event.preventDefault(); submitted++; });
+  assert.equal(form.checkValidity(), false);
+  form.requestSubmit();
+  assert.equal(submitted, 0);
   dom.window.close();
 });

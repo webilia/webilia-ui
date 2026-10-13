@@ -30,7 +30,7 @@ use Webilia\UI\DeactivationFeedbackDialog;
 <body>
   <div class="wui consumer-theme">
     <?php echo Header::render([
-        'title' => 'Example product', 'version' => '1.4.0', 'page_title' => 'Settings',
+        'title' => 'Example product', 'version' => '1.4.1', 'page_title' => 'Settings',
         'title_actions' => [['label' => 'Add New', 'url' => '#forms']],
         'actions' => [['label' => 'Documentation', 'url' => '/docs/components.md']],
     ]); ?>

@@ -3,6 +3,7 @@
 require __DIR__ . '/bootstrap.php';
 
 use Webilia\UI\WordPress\Assets;
+use Webilia\UI\Version;
 
 $styles = [];
 $scripts = [];
@@ -59,3 +60,7 @@ check(isset($styles['webilia-ui-v1-forms'], $styles['webilia-ui-v1-icons'], $sty
 echo "WordPress asset checks passed.\n";
 Assets::enqueue(['notice-dismiss'], 'https://example.com/one/');
 check(isset($scripts['webilia-ui-v1-notice'], $styles['webilia-ui-v1-buttons']), 'Dismissible notice dependencies missing.');
+$metadata = json_decode(file_get_contents(dirname(__DIR__, 2) . '/package.json'), true);
+check($metadata['version'] === Version::VALUE, 'Build and PHP release versions must match.');
+check($scripts['webilia-ui-v1-modal']['version'] !== '1.4.0', 'Changed assets must not reuse the version already shipped in v1.3.0.');
+check($scripts['webilia-ui-v1-modal']['version'] === Version::VALUE && $styles['webilia-ui-v1-header']['version'] === Version::VALUE, 'Shared scripts/styles must use the current release cache version.');

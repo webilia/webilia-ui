@@ -24,6 +24,22 @@ const screenshots = resolve(__dirname, '../../docs');
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.getByRole('button', { name: 'Serialize offering' }).click();
     assert.deepEqual(JSON.parse(await page.locator('#result').textContent()), { name: 'Example offering', duration: '45' });
+    await page.locator('#scheduling .wui-modal__body').evaluate(body => {
+      body.insertAdjacentHTML('beforeend', '<input name="required-later" required>');
+    });
+    const validation = await page.locator('#owner').evaluate(form => {
+      const input = document.querySelector('[name="required-later"]');
+      let submitted = false;
+      const handler = () => { submitted = true; };
+      form.addEventListener('submit', handler);
+      const result = { owned: input.form === form, valid: form.checkValidity() };
+      form.requestSubmit();
+      result.submitted = submitted;
+      form.removeEventListener('submit', handler);
+      input.remove();
+      return result;
+    });
+    assert.deepEqual(validation, { owned: true, valid: false, submitted: false });
     await page.getByRole('button', { name: 'Module settings', exact: true }).click();
     await page.keyboard.press('Escape');
     assert.equal(await page.locator('#settings').isVisible(), true);

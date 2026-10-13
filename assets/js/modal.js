@@ -14,7 +14,8 @@ function associateForm(modal) {
   if (!owner) return;
   for (const control of modal.querySelectorAll(formControls)) {
     // Nested forms and explicit owners take precedence over the modal owner.
-    if (control.hasAttribute('form') || control.closest('form')) continue;
+    const form = control.closest('form');
+    if (control.hasAttribute('form') || (form && modal.contains(form))) continue;
     control.setAttribute('form', owner);
   }
 }
@@ -32,8 +33,11 @@ function prepareModal(modal) {
       modal.dataset.wuiModalForm = form.id;
     }
   }
-  if (modal.dataset.wuiModalMount === 'body' && modal.parentElement !== document.body) {
-    document.body.append(modal);
+  if (modal.dataset.wuiModalMount === 'body') {
+    // A consumer may have initialized only its product root via the ESM API.
+    // Once mounted outside that root, document delegation must remain reachable.
+    init(document);
+    if (modal.parentElement !== document.body) document.body.append(modal);
   }
   associateForm(modal);
   if (modal.dataset.wuiModalForm && !formObservers.has(modal)) {
@@ -101,8 +105,8 @@ export function close(target) {
   }
   const index = openModals.indexOf(modal);
   if (index !== -1) openModals.splice(index, 1);
-  formObservers.get(modal)?.disconnect();
-  formObservers.delete(modal);
+  // Closed, body-mounted fields still belong to their external form. Keep
+  // ownership synchronized before native constraint validation, not only submit.
   modalParents.delete(modal);
   modal.style.removeProperty('--wui-modal-stack');
   updateLayers();

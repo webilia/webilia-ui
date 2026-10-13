@@ -12,10 +12,11 @@ nested focus/scrolling, modal close policy, rich notice dismissal, mobile RTL/re
 and feedback failure/Skip without making remote submissions. They refresh the screenshots
 in `docs/parity-*.png`. CI runs them on both supported PHP versions.
 
-Use the root checkout of `webilia/webilia-ui`, fetch `origin/main`, and branch from that remote ref. Open a PR with checks and playground screenshots. After review and merge, create the annotated `v1.4.0` tag on the merged `main` commit and push the tag. Verify an authenticated Composer VCS consumer can resolve `webilia/ui:^1.4` from that tag. Do not tag an unmerged feature branch.
+Use the root checkout of `webilia/webilia-ui`, fetch `origin/main`, and branch from that remote ref. Open a PR with checks and playground screenshots. After review and merge, create the annotated `v1.4.1` tag on the merged `main` commit and push the tag. Verify an authenticated Composer VCS consumer can resolve `webilia/ui:^1.4` from that tag. Do not tag an unmerged feature branch.
 
 The existing `v1.3.0` tag already reports internal 1.4.0. Keep it immutable;
-publish the reviewed consumer-parity additions in the new `v1.4.0` release,
+use internal 1.4.1 so changed assets receive fresh cache URLs rather than reusing `?ver=1.4.0`.
+publish the reviewed consumer-parity additions in the new `v1.4.1` release,
 matching `Version::VALUE`, npm metadata, documentation, and regenerated assets.
 
 The private GitHub repository is the initial Composer distribution channel. Consumers provide GitHub credentials through their local or CI Composer configuration, not a committed `auth.json` or token. Multiple active WordPress plugins are supported when they bundle the same package version. Coordinate package upgrades across products; v1 does not promise mixed-version runtime compatibility.
