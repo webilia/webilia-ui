@@ -111,8 +111,12 @@ form in the trusted body/footer when this wrapper is enabled.
 
 For fields belonging to an outside form, pass `form_id` or render the modal inside that
 form before opening. The controller captures the owner before optional body mounting,
-sets native `form` associations, and associates dynamic controls while open or closed and before
-submission. Explicit `form` attributes and nested forms take precedence. Serialize the
+sets native `form` associations, and associates dynamic controls while open or closed.
+Explicit `form_id` owners are initialized before the first open, so their fields participate
+in native validation immediately. Initialize newly inserted content before synchronous
+validation in the same task; mutation observers handle subsequent insertions automatically.
+Parent ownership never crosses into a nested dialog. Explicit `form` attributes and
+nested forms take precedence. Serialize the
 actual form (`FormData(form)` or its `elements`), not only its DOM descendants.
 Nested dialogs have ordered layers, focus return, and shared scroll locking.
 

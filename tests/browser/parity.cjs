@@ -12,6 +12,26 @@ const screenshots = resolve(__dirname, '../../docs');
     page.on('pageerror', error => failures.push(error.message));
     page.on('response', response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
     await page.goto(`${baseURL}/playground/parity.php`);
+    // Validate explicit owners before any dialog opens, including late insertion.
+    await page.evaluate(() => {
+      document.body.insertAdjacentHTML('beforeend', '<form id="early-ancestor"><div id="early-parent" data-wui-modal data-wui-modal-form="early-owner" hidden><input name="required" required><input name="parent" value="one"><div data-wui-modal data-wui-modal-form="early-child" hidden><input name="child" value="two"></div></div></form><form id="early-owner"></form><form id="early-child"></form>');
+    });
+    const early = await page.evaluate(() => {
+      const form = document.getElementById('early-owner');
+      let submitted = false;
+      form.addEventListener('submit', event => { event.preventDefault(); submitted = true; });
+      form.requestSubmit();
+      return {
+        ancestorValid: document.getElementById('early-ancestor').checkValidity(),
+        ownerValid: form.checkValidity(), submitted,
+        parent: [...new FormData(form).entries()],
+        child: [...new FormData(document.getElementById('early-child')).entries()]
+      };
+    });
+    assert.deepEqual(early, { ancestorValid: true, ownerValid: false, submitted: false, parent: [['required', ''], ['parent', 'one']], child: [['child', 'two']] });
+    await page.evaluate(() => {
+      for (const id of ['early-ancestor', 'early-owner', 'early-child']) document.getElementById(id).remove();
+    });
     await page.getByRole('button', { name: 'Configure scheduling' }).click();
     await page.locator('#scheduling input').fill('45');
     assert.equal(await page.locator('#scheduling').evaluate(el => el.parentElement === document.body), true);

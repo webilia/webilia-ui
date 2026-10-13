@@ -13,11 +13,26 @@ function associateForm(modal) {
   const owner = modal.dataset.wuiModalForm;
   if (!owner) return;
   for (const control of modal.querySelectorAll(formControls)) {
+    // Each dialog owns only its own controls, including before either opens.
+    if (control.closest('[data-wui-modal]') !== modal) continue;
     // Nested forms and explicit owners take precedence over the modal owner.
     const form = control.closest('form');
     if (control.hasAttribute('form') || (form && modal.contains(form))) continue;
     control.setAttribute('form', owner);
   }
+}
+
+function observeForm(modal) {
+  associateForm(modal);
+  if (!modal.dataset.wuiModalForm || formObservers.has(modal)) return;
+  const observer = new MutationObserver(() => associateForm(modal));
+  observer.observe(modal, { childList: true, subtree: true });
+  formObservers.set(modal, observer);
+}
+
+function initializeForms(root) {
+  if (root.matches?.('[data-wui-modal][data-wui-modal-form]')) observeForm(root);
+  for (const modal of root.querySelectorAll('[data-wui-modal][data-wui-modal-form]')) observeForm(modal);
 }
 
 function prepareModal(modal) {
@@ -39,12 +54,7 @@ function prepareModal(modal) {
     init(document);
     if (modal.parentElement !== document.body) document.body.append(modal);
   }
-  associateForm(modal);
-  if (modal.dataset.wuiModalForm && !formObservers.has(modal)) {
-    const observer = new MutationObserver(() => associateForm(modal));
-    observer.observe(modal, { childList: true, subtree: true });
-    formObservers.set(modal, observer);
-  }
+  observeForm(modal);
 }
 
 function updateLayers() {
@@ -176,8 +186,12 @@ function onKeydown(event) {
 }
 
 export function init(root = document) {
+  // Ownership must precede native validation, even for never-opened dialogs.
+  initializeForms(root);
   if (initializedRoots.has(root)) return;
   initializedRoots.add(root);
+  const observer = new MutationObserver(() => initializeForms(root));
+  observer.observe(root, { childList: true, subtree: true });
   root.addEventListener('click', onClick);
   root.addEventListener('keydown', onKeydown);
   root.addEventListener('submit', () => {

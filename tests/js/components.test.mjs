@@ -284,3 +284,42 @@ test('closed mounted modal associates newly rendered required fields before vali
   assert.equal(submitted, 0);
   dom.window.close();
 });
+
+
+test('never-opened explicit-owner dialogs participate in validation and dynamic serialization', async () => {
+  const dom = await browserWith(['modal'], '<form id="ancestor"><div id="m" data-wui-modal data-wui-modal-form="requested" hidden><input name="required" required><input name="setting" value="yes"></div></form><form id="requested"></form>');
+  const { document, FormData } = dom.window;
+  const ancestor = document.getElementById('ancestor');
+  const requested = document.getElementById('requested');
+  assert.equal(ancestor.checkValidity(), true);
+  assert.equal(requested.checkValidity(), false);
+  assert.equal(new FormData(requested).get('setting'), 'yes');
+  let submitted = 0;
+  requested.addEventListener('submit', event => { event.preventDefault(); submitted++; });
+  requested.requestSubmit();
+  assert.equal(submitted, 0);
+  document.getElementById('m').insertAdjacentHTML('beforeend', '<input name="dynamic" value="added">');
+  await Promise.resolve();
+  assert.equal(new FormData(requested).get('dynamic'), 'added');
+  document.body.insertAdjacentHTML('beforeend', '<div data-wui-modal data-wui-modal-form="requested" hidden><input name="late-modal" value="late"></div>');
+  await Promise.resolve();
+  assert.equal(new FormData(requested).get('late-modal'), 'late');
+  dom.window.close();
+});
+
+test('nested dialogs retain separate explicit owners before opening and after body mounting', async () => {
+  const dom = await browserWith(['modal'], '<form id="parent-form"></form><form id="child-form"></form><form id="explicit-form"></form><div id="parent" data-wui-modal data-wui-modal-form="parent-form" hidden><input name="parent" value="one"><div id="child" data-wui-modal data-wui-modal-form="child-form" data-wui-modal-mount="body" hidden><div class="wui-modal__panel" tabindex="-1"><input name="child" value="two"><input name="explicit" form="explicit-form" value="three"></div></div></div>');
+  const { document, FormData, WebiliaUI } = dom.window;
+  const entries = id => [...new FormData(document.getElementById(id)).entries()];
+  assert.deepEqual(entries('parent-form'), [['parent', 'one']]);
+  assert.deepEqual(entries('child-form'), [['child', 'two']]);
+  WebiliaUI.modal.open('parent');
+  WebiliaUI.modal.open('child');
+  document.querySelector('#child .wui-modal__panel').insertAdjacentHTML('beforeend', '<input name="dynamic-child" value="four">');
+  await Promise.resolve();
+  WebiliaUI.modal.close('parent');
+  assert.deepEqual(entries('parent-form'), [['parent', 'one']]);
+  assert.deepEqual(entries('child-form'), [['child', 'two'], ['dynamic-child', 'four']]);
+  assert.deepEqual(entries('explicit-form'), [['explicit', 'three']]);
+  dom.window.close();
+});
