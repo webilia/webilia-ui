@@ -55,3 +55,9 @@
 .wui [data-wui-announcement-list][hidden], .wui [data-wui-announcement-count][hidden] {
   display: none;
 }
+
+.wui.wui-announcements [role=tablist] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wui-space-2);
+}

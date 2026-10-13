@@ -9,3 +9,5 @@
 .wui .wui-announcement--success { border-inline-start-color: var(--wui-color-success); }
 .wui [data-wui-announcement-tab][aria-selected="true"] { box-shadow: inset 0 -2px var(--wui-color-primary); }
 .wui [data-wui-announcement-list][hidden], .wui [data-wui-announcement-count][hidden] { display: none; }
+
+.wui.wui-announcements [role="tablist"] { display: flex; flex-wrap: wrap; gap: var(--wui-space-2); }
