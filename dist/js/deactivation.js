@@ -46,7 +46,7 @@ var __wuiModule = (() => {
       }
       error.textContent = "";
     });
-    form.querySelector("[data-wui-feedback-skip]").addEventListener("click", () => {
+    modal.querySelector("[data-wui-feedback-skip]").addEventListener("click", () => {
       var _a;
       cancelled = true;
       generation++;
@@ -77,7 +77,7 @@ var __wuiModule = (() => {
       const details = ((_b = [...form.querySelectorAll("[data-wui-reason-details]")].find((element) => element.dataset.wuiReasonDetails === reason)) == null ? void 0 : _b.querySelector("textarea").value) || "";
       const started = generation;
       submitting = true;
-      const button = form.querySelector('[type="submit"]');
+      const button = modal.querySelector('[type="submit"]');
       button.disabled = true;
       form.setAttribute("aria-busy", "true");
       try {

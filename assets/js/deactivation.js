@@ -18,7 +18,7 @@ export function init(modal, options = {}) {
     }
     error.textContent = '';
   });
-  form.querySelector('[data-wui-feedback-skip]').addEventListener('click', () => {
+  modal.querySelector('[data-wui-feedback-skip]').addEventListener('click', () => {
     cancelled = true; generation++; emit('skip'); options.skip?.();
   });
   modal.addEventListener('wui:modal:opened', () => { cancelled = false; generation++; error.textContent = ''; });
@@ -31,7 +31,7 @@ export function init(modal, options = {}) {
     const details = [...form.querySelectorAll('[data-wui-reason-details]')].find(element => element.dataset.wuiReasonDetails === reason)?.querySelector('textarea').value || '';
     const started = generation;
     submitting = true;
-    const button = form.querySelector('[type="submit"]'); button.disabled = true; form.setAttribute('aria-busy', 'true');
+    const button = modal.querySelector('[type="submit"]'); button.disabled = true; form.setAttribute('aria-busy', 'true');
     try {
       await options.submit({ reason, details });
       if (!cancelled && started === generation) { emit('submitted', { reason }); options.complete?.(); }

@@ -181,3 +181,5 @@ Only `submit` sends feedback. Failures retain Skip; cancelling prevents late sub
 ![Feedback at phone width](deactivation-feedback-mobile.jpg)
 
 Open `/playground/?rtl=1` to exercise the full page and drawer in RTL.
+
+The feedback dialog uses responsive icon cards backed by native radio inputs. The details area spans the full dialog width, and the footer keeps Skip separate from Cancel/Submit. Submit is associated with the form through its `form` attribute. Consumers can override `--wui-deactivation-header-bg`, `--wui-deactivation-header-ink`, `--wui-deactivation-selected-bg`, `--wui-deactivation-selected-ink`, and `--wui-deactivation-link-color`; defaults use existing semantic color tokens. Modal also accepts an escaped `description` in the header, linked with `aria-describedby`.
