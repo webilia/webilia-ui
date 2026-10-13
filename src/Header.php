@@ -11,6 +11,9 @@ final class Header
         $home = Html::url($props['home_url'] ?? '');
         $mark = (string) ($props['mark_html'] ?? ''); // Trusted HTML supplied by the product.
         $brand = $mark . '<span class="wui-header__title">' . $title . '</span>';
+        if (isset($props['version']) && (string) $props['version'] !== '') {
+            $brand .= '<span class="wui-header__version">' . Html::escape($props['version']) . '</span>';
+        }
         $brand = $home !== '' ? '<a class="wui-header__brand" href="' . $home . '">' . $brand . '</a>'
             : '<div class="wui-header__brand">' . $brand . '</div>';
 
@@ -70,6 +73,16 @@ final class Header
             $output .= '<div class="wui-header__actions">' . $actions . '</div>';
         }
         $output .= '</div>';
+        if (!empty($props['page_title'])) {
+            $output .= '<div class="wui-header__page"><h1 class="wui-header__page-title">' . Html::escape($props['page_title']) . '</h1>';
+            foreach ((array) ($props['title_actions'] ?? []) as $action) {
+                if (!is_array($action)) continue;
+                $url = Html::url($action['url'] ?? '');
+                if ($url === '') continue;
+                $output .= '<a class="wui-button wui-button--secondary" href="' . $url . '">' . Html::escape($action['label'] ?? '') . '</a>';
+            }
+            $output .= '</div>';
+        }
         if ($nav !== '') {
             $label = Html::escape($props['nav_label'] ?? 'Section navigation');
             $output .= '<nav class="wui-header__nav" aria-label="' . $label . '">' . $nav . '</nav>';

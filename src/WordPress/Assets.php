@@ -18,6 +18,7 @@ final class Assets
         'surfaces' => ['style' => 'surfaces'],
         'badge' => ['style' => 'badge'],
         'notice' => ['style' => 'notice'],
+        'notice-dismiss' => ['style' => 'notice', 'script' => 'notice', 'requires' => ['buttons']],
         'feedback' => ['style' => 'feedback'],
         'icons' => ['style' => 'icons'],
         'toast' => ['style' => 'toast', 'script' => 'toast', 'requires' => ['icons']],

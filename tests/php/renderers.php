@@ -68,3 +68,31 @@ try {
 }
 
 echo "PHP renderer checks passed.\n";
+
+$modal = Modal::render([
+    'id' => 'settings', 'size' => 'xl', 'form' => true,
+    'form_attributes' => ['id' => 'settings-form', 'data-action' => 'save', 'onclick' => 'bad()', 'action' => 'javascript:bad()'],
+    'body_html' => '<input name="setting">', 'footer_html' => '<button type="submit">Save</button>',
+    'panel_class' => 'product-panel bad/class', 'body_class' => 'product-body',
+    'escape_close' => false, 'backdrop_close' => false, 'close_button' => false, 'mount_to_body' => true,
+]);
+check(strpos($modal, 'wui-modal--xl') !== false, 'XL size must be supported.');
+check(strpos($modal, 'data-wui-modal-escape-close="0"') !== false && strpos($modal, 'data-wui-modal-mount="body"') !== false, 'Modal options missing.');
+check(strpos($modal, 'data-wui-modal-close') === false, 'Close controls should be omitted.');
+check(strpos($modal, 'wui-modal__panel product-panel') !== false && strpos($modal, 'wui-modal__body product-body') !== false, 'Panel/body classes missing.');
+check(strpos($modal, 'onclick') === false && strpos($modal, 'javascript:') === false && strpos($modal, 'bad/class') === false, 'Unsafe form attributes/classes accepted.');
+check(strpos($modal, '<form id="settings-form" data-action="save">') < strpos($modal, '<input'), 'Form must wrap the body.');
+check(strpos($modal, '<button type="submit">Save</button>') < strpos($modal, '</form>'), 'Form must wrap the footer.');
+check(strpos(Modal::render(['id' => 'external', 'form_id' => 'owner']), 'data-wui-modal-form="owner"') !== false, 'External owner missing.');
+
+$notice = Notice::render(['message_html' => '<a href="/help">Help</a>', 'dismissible' => true, 'dismiss_label' => '<Close>']);
+check(strpos($notice, '<a href="/help">Help</a>') !== false, 'Explicit trusted message slot missing.');
+check(strpos($notice, 'aria-label="&lt;Close&gt;"') !== false, 'Dismiss label must be escaped.');
+check(strpos(Notice::render(['message' => 'Persistent']), 'data-wui-notice-dismiss') === false, 'Notice must remain persistent by default.');
+
+$header = Header::render(['title' => 'Product', 'version' => '<1.4>', 'page_title' => '<Settings>', 'title_actions' => [
+    ['label' => '<Add>', 'url' => '/new'], ['label' => 'Bad', 'url' => 'javascript:bad()'],
+]]);
+check(strpos($header, '&lt;1.4&gt;') !== false && strpos($header, '&lt;Settings&gt;') !== false && strpos($header, '&lt;Add&gt;') !== false, 'Header metadata must be escaped.');
+check(strpos($header, 'javascript:') === false && strpos($header, 'href="/new"') !== false, 'Title actions must use safe links.');
+echo "Consumer parity renderer checks passed.\n";

@@ -18,3 +18,6 @@ check(strpos($dialog, 'wui-deactivation example-brand') !== false, 'Feedback mus
 check(strpos($dialog, '<script>') === false && strpos($dialog, 'javascript:') === false, 'Feedback properties escaped.');
 check(strpos($dialog, 'site URL, selected reason and optional comments') !== false, 'Default disclosure must disclose the payload.');
 echo "Engagement renderer checks passed.\n";
+$dialog = DeactivationFeedbackDialog::render(['id' => 'terms', 'terms_url' => '/terms', 'labels' => ['terms' => '<Terms>']]);
+check(strpos($dialog, 'href="/terms"') !== false && strpos($dialog, '&lt;Terms&gt;') !== false, 'Terms link and escaped label missing.');
+check(strpos(DeactivationFeedbackDialog::render(['id' => 'unsafe-terms', 'terms_url' => 'javascript:bad()']), 'javascript:') === false, 'Unsafe terms URL accepted.');

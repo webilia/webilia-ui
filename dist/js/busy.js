@@ -35,7 +35,7 @@ var __wuiModule = (() => {
     const current = ownedControls.get(element);
     if (busy && current) return;
     if (busy) {
-      const controls = options.disableControls === false ? [] : [...element.querySelectorAll('button, input:not([type="hidden"]), select, textarea')];
+      const controls = options.disableControls === false ? [] : [...options.controls || element.querySelectorAll('button, input:not([type="hidden"]), select, textarea')].filter((control) => control instanceof Element && "disabled" in control);
       const owned = controls.filter((control) => !control.disabled);
       owned.forEach((control) => {
         control.disabled = true;

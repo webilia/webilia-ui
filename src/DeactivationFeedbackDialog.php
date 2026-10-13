@@ -31,7 +31,7 @@ final class DeactivationFeedbackDialog
         $body .= '</fieldset>' . $details . '<p class="wui-deactivation__disclosure">'
             . Html::escape($props['disclosure'] ?? 'Submitting feedback sends the site URL, selected reason and optional comments to Webilia.') . '</p>';
         $links = '';
-        foreach (['privacy' => 'Privacy policy', 'support' => 'Support'] as $name => $label) {
+        foreach (['privacy' => 'Privacy policy', 'terms' => 'Terms and conditions', 'support' => 'Support'] as $name => $label) {
             $url = Html::url($props[$name . '_url'] ?? '');
             if ($url !== '') $links .= '<a href="' . $url . '" target="_blank" rel="noopener noreferrer">'
                 . Html::escape($labels[$name] ?? $label) . '</a>';

@@ -5,7 +5,7 @@
 .wui.wui-modal {
   position: fixed;
   inset: 0;
-  z-index: 100000;
+  z-index: calc(100000 + var(--wui-modal-stack, 0));
   display: grid;
   place-items: center;
   padding: var(--wui-space-4);
@@ -35,6 +35,16 @@
 
 .wui.wui-modal--large .wui-modal__panel {
   inline-size: min(100%, 800px);
+}
+
+.wui.wui-modal--xl .wui-modal__panel {
+  inline-size: min(100%, 1200px);
+}
+
+.wui .wui-modal__panel > form {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
 }
 
 .wui .wui-modal__header {
