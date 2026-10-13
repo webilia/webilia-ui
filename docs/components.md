@@ -155,7 +155,7 @@ WebiliaUI.announcements.init(document.getElementById('product-announcements'), {
 });
 ```
 
-`load` runs when opened; the returned controller also exposes `refresh()`. Failed retrieval/dismissal shows the configured error. Dates use localized relative days. Dismissals move matching IDs in mounted centers within the same scope only after persistence succeeds. Transport callbacks own authorization and HTML sanitization. Repeated initialization returns the existing controller.
+`load` runs when opened; the returned controller also exposes `refresh()`. Failed retrieval/dismissal shows the configured error. Dates use localized relative days. Numeric and string IDs are normalized to strings. Successful dismissals survive older in-flight load results and move matching IDs in mounted centers within the same scope only after persistence succeeds. Transport callbacks own authorization and HTML sanitization. Repeated initialization returns the existing controller.
 
 `DeactivationFeedbackDialog::render()` accepts `id`, `title`, `class` (consumer theme classes), `description`, `reasons` (keyed by reason code), `disclosure`, optional `privacy_url`/`support_url`, and `labels`. Each reason contains `title`, optional icon name, and optional `placeholder` enabling an optional details textarea. Labels include `reason`, `details`, `skip`, `cancel`, `submit`, `close`, `privacy`, and `support`. Translate the disclosure and explain that submitting sends the site URL, selected reason and optional comments to Webilia.
 
@@ -164,7 +164,7 @@ Load `modal.js` before `deactivation.js`, or enqueue `deactivation`:
 ```js
 WebiliaUI.deactivation.init(document.getElementById('product-feedback'), {
   reasonRequired: translatedReasonError,
-  error: translatedSubmissionError,
+  error: translatedSubmissionError, // preferred over transport rejection messages
   submit: async ({ reason, details }) => sendFeedback(reason, details),
   complete: () => followOriginalDeactivationLink(),
   skip: () => followOriginalDeactivationLink(),

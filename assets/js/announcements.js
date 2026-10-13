@@ -11,7 +11,14 @@ export function init(modal, options = {}) {
   const root = modal.querySelector('[data-wui-announcement-center]');
   if (!root) return null;
   const labels = { dismiss: 'Dismiss', loading: 'Loading…', error: 'Announcements are unavailable. Try again later.', empty_active: 'No active announcements.', empty_dismissed: 'No dismissed announcements.', ...options.labels };
-  let items = options.items || [];
+  const dismissedIds = new Set();
+  function normalize(items) {
+    return items.map(item => {
+      const id = String(item.id);
+      return { ...item, id, state: dismissedIds.has(id) ? 'dismissed' : item.state };
+    });
+  }
+  let items = normalize(options.items || []);
   let tab = 'active';
   const status = root.querySelector('[data-wui-announcement-status]');
   const tabs = [...root.querySelectorAll('[role="tab"]')];
@@ -79,7 +86,7 @@ export function init(modal, options = {}) {
     if (!options.load || loading) return;
     loading = true; root.setAttribute('aria-busy', 'true'); status.textContent = labels.loading;
     try {
-      const result = await options.load(); items = result.items; paint(); status.textContent = result.unavailable ? labels.error : '';
+      const result = await options.load(); items = normalize(result.items); paint(); status.textContent = result.unavailable ? labels.error : '';
     } catch { status.textContent = labels.error; }
     finally { loading = false; root.removeAttribute('aria-busy'); }
   }
@@ -108,7 +115,8 @@ export function init(modal, options = {}) {
   });
   document.addEventListener('wui:announcement:dismissed', event => {
     if (event.detail.scope !== (options.scope || modal.id)) return;
-    items = items.map(item => item.id === event.detail.id ? { ...item, state: 'dismissed' } : item); paint();
+    dismissedIds.add(String(event.detail.id));
+    items = normalize(items); paint();
   });
   for (const kind of ['opened', 'closed']) modal.addEventListener(`wui:modal:${kind}`, () => {
     for (const button of document.querySelectorAll('[data-wui-modal-open]')) {

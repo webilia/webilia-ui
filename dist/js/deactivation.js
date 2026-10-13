@@ -34,6 +34,7 @@ var __wuiModule = (() => {
     let submitting = false;
     let cancelled = false;
     let generation = 0;
+    let terminal = false;
     function emit(action, detail = {}) {
       modal.dispatchEvent(new CustomEvent(`wui:feedback:${action}`, { bubbles: true, detail }));
     }
@@ -48,12 +49,14 @@ var __wuiModule = (() => {
     });
     modal.querySelector("[data-wui-feedback-skip]").addEventListener("click", () => {
       var _a;
+      terminal = true;
       cancelled = true;
       generation++;
       emit("skip");
       (_a = options.skip) == null ? void 0 : _a.call(options);
     });
     modal.addEventListener("wui:modal:opened", () => {
+      terminal = false;
       cancelled = false;
       generation++;
       error.textContent = "";
@@ -62,8 +65,10 @@ var __wuiModule = (() => {
       var _a;
       cancelled = true;
       generation++;
-      emit("cancel");
-      (_a = options.cancel) == null ? void 0 : _a.call(options);
+      if (!terminal) {
+        emit("cancel");
+        (_a = options.cancel) == null ? void 0 : _a.call(options);
+      }
     });
     form.addEventListener("submit", async (event) => {
       var _a, _b, _c;
@@ -83,11 +88,12 @@ var __wuiModule = (() => {
       try {
         await options.submit({ reason, details });
         if (!cancelled && started === generation) {
+          terminal = true;
           emit("submitted", { reason });
           (_c = options.complete) == null ? void 0 : _c.call(options);
         }
       } catch (failure) {
-        if (!cancelled && started === generation) error.textContent = failure.message || options.error || "Could not send feedback. You can skip and deactivate.";
+        if (!cancelled && started === generation) error.textContent = options.error || (failure == null ? void 0 : failure.message) || "Could not send feedback. You can skip and deactivate.";
       } finally {
         submitting = false;
         button.disabled = false;

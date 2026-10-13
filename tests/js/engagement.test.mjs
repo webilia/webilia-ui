@@ -73,3 +73,53 @@ test('cancelling and reopening during submission cannot deactivate on a late suc
   w.WebiliaUI.modal.close(modal); w.WebiliaUI.modal.open(modal); done(); await tick(); assert.equal(completed, 0);
 });
 
+
+test('numeric IDs synchronize and successful dismissals survive older load responses', async () => {
+  const { window: w } = await browser(); const d = w.document;
+  const a = d.getElementById('center'); const b = a.cloneNode(true); b.id = 'second'; d.body.append(b);
+  let finishLoad, dismissed;
+  const numeric = { ...item, id: 123 };
+  w.WebiliaUI.announcements.init(a, { items: [numeric], scope: 'site', dismiss: async id => { dismissed = id; } });
+  const api = w.WebiliaUI.announcements.init(b, { items: [numeric], scope: 'site', load: () => new Promise(resolve => { finishLoad = resolve; }) });
+  const refresh = api.refresh();
+  a.querySelector('[data-wui-announcement-dismiss]').click(); await tick();
+  assert.equal(dismissed, '123');
+  assert.equal(a.querySelectorAll('[data-wui-announcement-list="active"] article').length, 0);
+  assert.equal(b.querySelectorAll('[data-wui-announcement-list="dismissed"] article').length, 1);
+  finishLoad({ items: [numeric, { ...item, id: 456 }] }); await refresh;
+  assert.equal(b.querySelectorAll('[data-wui-announcement-list="dismissed"] article').length, 1);
+  assert.equal(b.querySelectorAll('[data-wui-announcement-list="active"] article').length, 1);
+  assert.equal(b.querySelector('[data-wui-announcement-list="active"] article').dataset.wuiAnnouncementId, '456');
+  assert.equal(d.querySelector('[data-wui-announcement-count]').hidden, true);
+});
+
+test('configured feedback errors take priority and null rejections recover controls', async () => {
+  const { window: w } = await browser(); const modal = w.document.getElementById('feedback');
+  let failure = new Error('Raw transport message');
+  w.WebiliaUI.deactivation.init(modal, { error: 'Translated error', submit: async () => { throw failure; } });
+  w.WebiliaUI.modal.open(modal); modal.querySelector('[value="other"]').click();
+  const submit = modal.querySelector('[type="submit"]'); submit.click(); await tick();
+  assert.equal(modal.querySelector('[data-wui-feedback-error]').textContent, 'Translated error');
+  failure = null; submit.click(); await tick();
+  assert.equal(modal.querySelector('[data-wui-feedback-error]').textContent, 'Translated error');
+  assert.equal(submit.disabled, false);
+  assert.equal(modal.querySelector('[data-wui-feedback-skip]').disabled, false);
+});
+
+test('terminal feedback actions close without also reporting cancellation', async () => {
+  for (const outcome of ['skip', 'submitted']) {
+    const { window: w } = await browser(); const modal = w.document.getElementById('feedback');
+    let cancels = 0, completed = 0; const events = [];
+    for (const name of ['skip', 'submitted', 'cancel']) modal.addEventListener(`wui:feedback:${name}`, () => events.push(name));
+    w.WebiliaUI.deactivation.init(modal, { submit: async () => {},
+      skip: () => w.WebiliaUI.modal.close(modal), cancel: () => { cancels++; }, complete: () => { completed++; } });
+    modal.addEventListener('wui:feedback:submitted', () => w.WebiliaUI.modal.close(modal));
+    w.WebiliaUI.modal.open(modal);
+    if (outcome === 'skip') modal.querySelector('[data-wui-feedback-skip]').click();
+    else { modal.querySelector('[value="temporary"]').click(); modal.querySelector('[type="submit"]').click(); await tick(); }
+    assert.equal(modal.hidden, true); assert.deepEqual(events, [outcome]); assert.equal(cancels, 0);
+    assert.equal(completed, outcome === 'submitted' ? 1 : 0);
+    w.WebiliaUI.modal.open(modal); w.WebiliaUI.modal.close(modal);
+    assert.equal(cancels, 1); assert.deepEqual(events, [outcome, 'cancel']);
+  }
+});

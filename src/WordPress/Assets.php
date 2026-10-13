@@ -12,7 +12,7 @@ final class Assets
         'deactivation' => ['style' => 'deactivation', 'script' => 'deactivation', 'requires' => ['modal', 'forms', 'icons']],
         'layout' => ['style' => 'layout'],
         'buttons' => ['style' => 'buttons'],
-        'header' => ['style' => 'header', 'requires' => ['buttons']],
+        'header' => ['style' => 'header', 'requires' => ['buttons', 'icons']],
         'breadcrumb' => ['style' => 'breadcrumb'],
         'forms' => ['style' => 'forms'],
         'surfaces' => ['style' => 'surfaces'],

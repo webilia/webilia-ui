@@ -26,6 +26,9 @@ function wp_enqueue_script($handle, $source, $deps, $version, $footer): void
 Assets::enqueue([], 'https://example.com/one/');
 check(!$styles && !$scripts, 'Empty selection must enqueue nothing.');
 
+Assets::enqueue(['header'], 'https://example.com/one/');
+check(isset($styles['webilia-ui-v1-icons']), 'Header icon buttons require the icon stylesheet even without announcements.');
+
 Assets::enqueue(['header', 'breadcrumb', 'forms', 'badge'], 'https://example.com/one/');
 check(isset($styles['webilia-ui-v1-tokens'], $styles['webilia-ui-v1-buttons'], $styles['webilia-ui-v1-header'], $styles['webilia-ui-v1-breadcrumb'], $styles['webilia-ui-v1-forms'], $styles['webilia-ui-v1-badge']), 'Selected styles or dependencies missing.');
 check(!isset($styles['webilia-ui-v1-modal']), 'Unselected modal style was enqueued.');
