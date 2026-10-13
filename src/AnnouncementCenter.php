@@ -33,7 +33,7 @@ final class AnnouncementCenter
         return Modal::render([
             'id' => $id, 'title' => $props['title'] ?? 'Announcements',
             'close_label' => $labels['close'] ?? 'Close announcements',
-            'class' => 'wui-announcements', 'body_html' => $body . '</div>',
+            'class' => 'wui-announcements ' . ($props['class'] ?? ''), 'body_html' => $body . '</div>',
         ]);
     }
 

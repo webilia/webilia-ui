@@ -140,7 +140,7 @@ Use the default neutral tokens or override semantic `--wui-*` variables on a pro
 
 Header actions still accept links. A button action accepts `type: button`, `label`, `icon`, `target` (dialog ID), and optional `count`. Use `icon: bell` for the built-in SVG notification bell. `count_label` is a translated template containing `{count}`; it defaults to the label followed by the count. Zero hides the visual badge and keeps the button usable.
 
-`AnnouncementCenter::render()` accepts `id`, `title`, `labels`, `active`, and `dismissed`. Each item accepts `id`, `title`, `description_html`, `severity`, `date` (ISO timestamp), `date_label`, and optional `url`/`cta_label`. **`description_html` is a trusted slot: sanitize it before passing it to PHP or JavaScript.** Labels include `tabs`, `active`, `dismissed`, `dismiss`, `close`, `empty_active`, `empty_dismissed`, `loading`, and `error`.
+`AnnouncementCenter::render()` accepts `id`, `title`, `class` (consumer theme classes), `labels`, `active`, and `dismissed`. Each item accepts `id`, `title`, `description_html`, `severity`, `date` (ISO timestamp), `date_label`, and optional `url`/`cta_label`. **`description_html` is a trusted slot: sanitize it before passing it to PHP or JavaScript.** Labels include `tabs`, `active`, `dismissed`, `dismiss`, `close`, `empty_active`, `empty_dismissed`, `loading`, and `error`.
 
 Load `modal.js` before `announcements.js`, or enqueue the `announcements` WordPress component. Initialize once per dialog:
 
@@ -157,7 +157,7 @@ WebiliaUI.announcements.init(document.getElementById('product-announcements'), {
 
 `load` runs when opened; the returned controller also exposes `refresh()`. Failed retrieval/dismissal shows the configured error. Dates use localized relative days. Dismissals move matching IDs in mounted centers within the same scope only after persistence succeeds. Transport callbacks own authorization and HTML sanitization. Repeated initialization returns the existing controller.
 
-`DeactivationFeedbackDialog::render()` accepts `id`, `title`, `description`, `reasons` (keyed by reason code), `disclosure`, optional `privacy_url`/`support_url`, and `labels`. Each reason contains `title`, optional icon name, and optional `placeholder` enabling an optional details textarea. Labels include `reason`, `details`, `skip`, `cancel`, `submit`, `close`, `privacy`, and `support`. Translate the disclosure and explain that submitting sends the site URL, selected reason and optional comments to Webilia.
+`DeactivationFeedbackDialog::render()` accepts `id`, `title`, `class` (consumer theme classes), `description`, `reasons` (keyed by reason code), `disclosure`, optional `privacy_url`/`support_url`, and `labels`. Each reason contains `title`, optional icon name, and optional `placeholder` enabling an optional details textarea. Labels include `reason`, `details`, `skip`, `cancel`, `submit`, `close`, `privacy`, and `support`. Translate the disclosure and explain that submitting sends the site URL, selected reason and optional comments to Webilia.
 
 Load `modal.js` before `deactivation.js`, or enqueue `deactivation`:
 

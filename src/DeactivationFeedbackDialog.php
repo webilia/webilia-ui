@@ -38,6 +38,6 @@ final class DeactivationFeedbackDialog
             . '<button type="submit" class="wui-button">' . Html::escape($labels['submit'] ?? 'Submit & Deactivate')
             . '</button></div></form>';
         return Modal::render(['id' => $id, 'title' => $props['title'] ?? 'Deactivation feedback',
-            'close_label' => $labels['close'] ?? 'Close dialog', 'class' => 'wui-deactivation', 'body_html' => $body]);
+            'close_label' => $labels['close'] ?? 'Close dialog', 'class' => 'wui-deactivation ' . ($props['class'] ?? ''), 'body_html' => $body]);
     }
 }
