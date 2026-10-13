@@ -31,6 +31,7 @@ var __wuiModule = (() => {
     const form = modal.querySelector("[data-wui-deactivation-feedback]");
     if (!form) return null;
     const error = form.querySelector("[data-wui-feedback-error]");
+    const button = modal.querySelector('[type="submit"]');
     let submitting = false;
     let cancelled = false;
     let generation = 0;
@@ -59,6 +60,9 @@ var __wuiModule = (() => {
       terminal = false;
       cancelled = false;
       generation++;
+      submitting = false;
+      button.disabled = false;
+      form.removeAttribute("aria-busy");
       error.textContent = "";
     });
     modal.addEventListener("wui:modal:closed", () => {
@@ -82,7 +86,6 @@ var __wuiModule = (() => {
       const details = ((_b = [...form.querySelectorAll("[data-wui-reason-details]")].find((element) => element.dataset.wuiReasonDetails === reason)) == null ? void 0 : _b.querySelector("textarea").value) || "";
       const started = generation;
       submitting = true;
-      const button = modal.querySelector('[type="submit"]');
       button.disabled = true;
       form.setAttribute("aria-busy", "true");
       try {
@@ -95,9 +98,11 @@ var __wuiModule = (() => {
       } catch (failure) {
         if (!cancelled && started === generation) error.textContent = options.error || (failure == null ? void 0 : failure.message) || "Could not send feedback. You can skip and deactivate.";
       } finally {
-        submitting = false;
-        button.disabled = false;
-        form.removeAttribute("aria-busy");
+        if (started === generation) {
+          submitting = false;
+          button.disabled = false;
+          form.removeAttribute("aria-busy");
+        }
       }
     });
     const api = {};

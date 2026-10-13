@@ -47,7 +47,7 @@ var __wuiModule = (() => {
         return { ...item, id, state: dismissedIds.has(id) ? "dismissed" : item.state };
       });
     }
-    let items = normalize(options.items || []);
+    let items = normalize(options.items || JSON.parse(root.dataset.wuiAnnouncementItems || "[]"));
     let tab = "active";
     const status = root.querySelector("[data-wui-announcement-status]");
     const tabs = [...root.querySelectorAll('[role="tab"]')];
@@ -57,7 +57,8 @@ var __wuiModule = (() => {
       for (const time of root.querySelectorAll("[data-wui-announcement-date]")) {
         const timestamp = Date.parse(time.dateTime);
         if (!Number.isFinite(timestamp)) continue;
-        const days = Math.round((timestamp - Date.now()) / 864e5);
+        const calendarDay = (date) => Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+        const days = (calendarDay(new Date(timestamp)) - calendarDay(new Date(Date.now()))) / 864e5;
         time.textContent = typeof Intl.RelativeTimeFormat === "function" ? new Intl.RelativeTimeFormat(options.locale || void 0, { numeric: "auto" }).format(days, "day") : new Date(timestamp).toLocaleDateString(options.locale || void 0);
       }
     }

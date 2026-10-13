@@ -9,7 +9,15 @@ final class AnnouncementCenter
     {
         $id = (string) ($props['id'] ?? '');
         $labels = $props['labels'] ?? [];
-        $body = '<div data-wui-announcement-center><div role="tablist" aria-label="'
+        $items = [];
+        foreach (['active', 'dismissed'] as $state) {
+            foreach (($props[$state] ?? []) as $item) {
+                $item['url'] = html_entity_decode(Html::url($item['url'] ?? ''), ENT_QUOTES, 'UTF-8');
+                $items[] = array_merge($item, ['state' => $state]);
+            }
+        }
+        $initialItems = Html::escape(json_encode($items, JSON_INVALID_UTF8_SUBSTITUTE));
+        $body = '<div data-wui-announcement-center data-wui-announcement-items="' . $initialItems . '"><div role="tablist" aria-label="'
             . Html::escape($labels['tabs'] ?? 'Announcement status') . '">';
         foreach (['active' => 'Active', 'dismissed' => 'Dismissed'] as $tab => $label) {
             $body .= '<button type="button" class="wui-button wui-button--tertiary" role="tab" id="'

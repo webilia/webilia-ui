@@ -123,3 +123,42 @@ test('terminal feedback actions close without also reporting cancellation', asyn
     assert.equal(cancels, 1); assert.deepEqual(events, [outcome, 'cancel']);
   }
 });
+
+test('server-rendered items survive dismissal without duplicating initialization data', async () => {
+  const html = execFileSync('php', ['-r', `require '${root}/tests/php/bootstrap.php'; echo \\Webilia\\UI\\AnnouncementCenter::render(['id' => 'seeded', 'active' => [['id' => 1, 'title' => 'First'], ['id' => 2, 'title' => 'Second']], 'dismissed' => [['id' => 3, 'title' => 'Previous']]]);`], { encoding: 'utf8' });
+  const { window: w } = await browser(html); const modal = w.document.getElementById('seeded');
+  w.WebiliaUI.announcements.init(modal, { dismiss: async () => {} });
+  modal.querySelector('[data-wui-announcement-dismiss]').click(); await tick();
+  assert.equal(modal.querySelectorAll('[data-wui-announcement-list="active"] article').length, 1);
+  assert.equal(modal.querySelector('[data-wui-announcement-list="active"] h3').textContent, 'Second');
+  assert.equal(modal.querySelectorAll('[data-wui-announcement-list="dismissed"] article').length, 2);
+});
+
+test('reopening owns new submission controls despite an older pending request', async () => {
+  const { window: w } = await browser(); const modal = w.document.getElementById('feedback');
+  const pending = []; let completed = 0;
+  w.WebiliaUI.deactivation.init(modal, { submit: () => new Promise(resolve => pending.push(resolve)), complete: () => { completed++; } });
+  w.WebiliaUI.modal.open(modal); modal.querySelector('[value="temporary"]').click();
+  const button = modal.querySelector('[type="submit"]'); const form = modal.querySelector('form');
+  button.click(); assert.equal(button.disabled, true);
+  w.WebiliaUI.modal.close(modal); w.WebiliaUI.modal.open(modal);
+  assert.equal(button.disabled, false); assert.equal(form.hasAttribute('aria-busy'), false);
+  button.click(); assert.equal(pending.length, 2);
+  pending[0](); await tick();
+  assert.equal(completed, 0); assert.equal(button.disabled, true); assert.equal(form.getAttribute('aria-busy'), 'true');
+  pending[1](); await tick();
+  assert.equal(completed, 1); assert.equal(button.disabled, false); assert.equal(form.hasAttribute('aria-busy'), false);
+});
+
+test('relative day labels use local calendar dates around midnight and long same-day intervals', async () => {
+  for (const [now, earlier, expected] of [
+    [new Date(2026, 9, 12, 23, 30), new Date(2026, 9, 12, 0, 10), 'today'],
+    [new Date(2026, 9, 12, 0, 10), new Date(2026, 9, 11, 23, 30), 'yesterday'],
+    [new Date(2026, 2, 9, 0, 10), new Date(2026, 2, 8, 23, 30), 'yesterday'],
+  ]) {
+    const { window: w } = await browser(); w.Date.now = () => now.getTime();
+    const modal = w.document.getElementById('center');
+    w.WebiliaUI.announcements.init(modal, { locale: 'en', items: [{ ...item, date: earlier.toISOString() }] });
+    assert.equal(modal.querySelector('time').textContent, expected);
+  }
+});
