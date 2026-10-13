@@ -1,6 +1,6 @@
 # Webilia UI
 
-`webilia/ui` is a modular PHP, SCSS, and vanilla JavaScript UI package for Webilia products. Its core renderers work without WordPress; the WordPress adapters are opt-in. Version 1.3 adds an admin header adapter that places product headers before native notices.
+`webilia/ui` is a modular PHP, SCSS, and vanilla JavaScript UI package for Webilia products. Its core renderers work without WordPress; the WordPress adapters are opt-in. Version 1.4 adds an Announcement Center and deactivation feedback dialog; the existing admin header adapter places product headers before native notices.
 
 ![Webilia UI playground showing the header, cards, and actions](docs/playground.png)
 
@@ -14,7 +14,7 @@ Add the authenticated VCS repository to the consuming project's `composer.json`:
     { "type": "vcs", "url": "https://github.com/webilia/webilia-ui" }
   ],
   "require": {
-    "webilia/ui": "^1.3"
+    "webilia/ui": "^1.4"
   }
 }
 ```

@@ -1,0 +1,166 @@
+.wui.wui-deactivation .wui-modal__panel {
+  inline-size: min(100%, 1000px);
+}
+
+.wui.wui-deactivation .wui-modal__header {
+  align-items: flex-start;
+  background: var(--wui-deactivation-header-bg, var(--wui-color-primary));
+}
+
+.wui.wui-deactivation .wui-modal__header h2, .wui.wui-deactivation .wui-modal__close {
+  color: var(--wui-deactivation-header-ink, var(--wui-color-on-primary));
+}
+
+.wui.wui-deactivation .wui-modal__close, .wui.wui-deactivation .wui-modal__close:hover {
+  background: transparent;
+}
+
+.wui.wui-deactivation .wui-modal__description {
+  margin: var(--wui-space-2) 0 0;
+  color: var(--wui-deactivation-header-ink, var(--wui-color-on-primary));
+  font-size: var(--wui-font-size-md);
+  line-height: 1.5;
+}
+
+.wui.wui-deactivation .wui-modal__header, .wui.wui-deactivation .wui-modal__footer {
+  flex-shrink: 0;
+}
+
+.wui.wui-deactivation .wui-modal__body {
+  min-block-size: 0;
+}
+
+.wui .wui-deactivation__reasons {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--wui-space-3);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.wui .wui-deactivation__legend, .wui .wui-deactivation__choice input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.wui .wui-deactivation__choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--wui-space-3);
+  min-inline-size: 0;
+  padding: var(--wui-space-3);
+  border: 1px solid var(--wui-color-border);
+  border-radius: var(--wui-radius-md);
+  background: var(--wui-color-surface);
+  color: var(--wui-color-text);
+  text-align: center;
+  cursor: pointer;
+}
+
+.wui .wui-deactivation__choice:hover {
+  border-color: var(--wui-color-primary);
+}
+
+.wui .wui-deactivation__choice:has(input:checked) {
+  background: var(--wui-deactivation-selected-bg, var(--wui-color-primary));
+  color: var(--wui-deactivation-selected-ink, var(--wui-color-on-primary));
+  border-color: var(--wui-deactivation-selected-bg, var(--wui-color-primary));
+}
+
+.wui .wui-deactivation__choice:has(input:focus-visible) {
+  outline: 2px solid var(--wui-color-focus);
+  outline-offset: 3px;
+}
+
+.wui .wui-deactivation__choice input {
+  accent-color: var(--wui-color-primary);
+}
+
+.wui .wui-deactivation__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: var(--wui-radius-pill);
+  background: var(--wui-color-info-soft);
+  color: var(--wui-color-text);
+  font-size: 22px;
+}
+
+.wui .wui-deactivation__reason-title {
+  font-size: var(--wui-font-size-md);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.wui .wui-deactivation__details {
+  margin-block-start: var(--wui-space-5);
+  padding: var(--wui-space-4);
+  border-radius: var(--wui-radius-md);
+  background: var(--wui-color-background);
+}
+
+.wui .wui-deactivation__disclosure {
+  margin-block: var(--wui-space-5) var(--wui-space-3);
+  color: var(--wui-color-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.wui .wui-deactivation__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--wui-space-4);
+}
+
+.wui .wui-deactivation__links a {
+  color: var(--wui-deactivation-link-color, var(--wui-color-primary));
+  text-decoration: underline;
+}
+
+.wui .wui-deactivation__links a:hover {
+  color: var(--wui-color-primary-hover);
+}
+
+.wui.wui-deactivation .wui-modal__footer {
+  justify-content: space-between;
+  background: var(--wui-color-background);
+}
+
+.wui .wui-deactivation__submit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wui-space-2);
+}
+
+.wui.wui-deactivation [data-wui-reason-details][hidden] {
+  display: none;
+}
+
+.wui [data-wui-feedback-error] {
+  color: var(--wui-color-danger);
+}
+
+@media (max-width: 782px) {
+  .wui .wui-deactivation__reasons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .wui .wui-deactivation__reasons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

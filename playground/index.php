@@ -37,12 +37,12 @@ $modal = Modal::render([
     'close_label' => 'Close example dialog',
 ]);
 ?><!doctype html>
-<html lang="en">
+<html lang="en" dir="<?php echo isset($_GET['rtl']) ? 'rtl' : 'ltr'; ?>">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Webilia UI Playground</title>
-  <?php foreach (['tokens', 'layout', 'buttons', 'header', 'breadcrumb', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast'] as $style): ?>
+  <?php foreach (['tokens', 'layout', 'buttons', 'header', 'breadcrumb', 'forms', 'surfaces', 'badge', 'notice', 'feedback', 'modal', 'icons', 'toast', 'announcements', 'deactivation'] as $style): ?>
     <link rel="stylesheet" href="/dist/css/<?php echo htmlspecialchars($style, ENT_QUOTES, 'UTF-8'); ?>.css">
   <?php endforeach; ?>
   <style>
@@ -153,6 +153,8 @@ $modal = Modal::render([
       <section id="overlays" class="playground-section">
         <h2>Overlays</h2>
         <div class="wui-inline">
+          <?php echo Header::render(['title' => 'Engagement examples', 'actions' => [['type' => 'button', 'icon' => 'bell', 'label' => 'Announcements', 'target' => 'demo-announcements', 'count' => 1]]]); ?>
+          <button type="button" class="wui-button" data-wui-modal-open="demo-feedback">Open deactivation feedback</button>
           <button type="button" class="wui-button" data-wui-modal-open="example-modal">Open PHP modal</button>
           <button type="button" class="wui-button wui-button--danger" id="confirm-demo">Open confirmation</button>
           <span id="confirm-result" role="status" aria-live="polite"></span>
@@ -172,10 +174,20 @@ $modal = Modal::render([
     </main>
   </div>
   <?php echo $modal; ?>
+  <?php echo \Webilia\UI\AnnouncementCenter::render(['id' => 'demo-announcements', 'title' => 'Product announcements']); ?>
+  <?php echo \Webilia\UI\DeactivationFeedbackDialog::render(['id' => 'demo-feedback', 'title' => 'Deactivate example product', 'description' => 'Help us understand your experience.', 'reasons' => ['other' => ['title' => 'Other', 'placeholder' => 'Share optional details'], 'temporary' => ['title' => 'Temporary deactivation']], 'privacy_url' => 'https://webilia.com/privacy-policy/']); ?>
   <script src="/dist/js/modal.js"></script>
   <script src="/dist/js/busy.js"></script>
   <script src="/dist/js/toast.js"></script>
+  <script src="/dist/js/announcements.js"></script>
+  <script src="/dist/js/deactivation.js"></script>
   <script>
+    const demoItems = [{ id: 'demo:1', title: 'Welcome to the Announcement Center', description_html: '<p>Announcements support <strong>sanitized rich text</strong> and optional actions.</p>', severity: 'info', state: 'active', date: new Date().toISOString(), cta_label: 'Component reference', url: '/docs/components.md' }];
+    WebiliaUI.announcements.init(document.getElementById('demo-announcements'), { items: demoItems, load: async () => ({ items: demoItems }), dismiss: async id => { demoItems.find(item => item.id === id).state = 'dismissed'; } });
+    WebiliaUI.deactivation.init(document.getElementById('demo-feedback'), {
+      submit: async () => { throw new Error('Demo submission failed. Skip remains available.'); },
+      skip: () => WebiliaUI.modal.close('demo-feedback')
+    });
     document.querySelectorAll('[data-toast-tone]').forEach(function (button) {
       button.addEventListener('click', function () {
         WebiliaUI.toast.show(button.textContent.trim(), {

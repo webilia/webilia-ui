@@ -106,3 +106,17 @@
     padding-block-start: 0;
   }
 }
+.wui .wui-header__icon-action {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.wui .wui-header__icon-action .wui-badge {
+  position: absolute;
+  inset-block-start: -8px;
+  inset-inline-end: -8px;
+  min-inline-size: 18px;
+  padding: 2px 5px;
+  background: var(--wui-color-primary);
+  color: var(--wui-color-on-primary);
+}
