@@ -1,6 +1,6 @@
 # Webilia UI
 
-`webilia/ui` is a modular PHP, SCSS, and vanilla JavaScript UI package for Webilia products. Its core renderers work without WordPress; the WordPress adapters are opt-in. Version 1.4 adds an Announcement Center and deactivation feedback dialog; the existing admin header adapter places product headers before native notices.
+`webilia/ui` is a modular PHP, SCSS, and vanilla JavaScript UI package for Webilia products. Its core renderers work without WordPress; the WordPress adapters are opt-in. Version 1.5 adds reusable Demo Importer and Settings Panel presentation; version 1.4 added an Announcement Center and deactivation feedback dialog; the existing admin header adapter places product headers before native notices.
 
 ![Webilia UI playground showing the header, cards, and actions](docs/playground.png)
 
@@ -141,3 +141,8 @@ Open `http://127.0.0.1:8000/playground/`. Build output in `dist/` is committed s
 3. Use `wui-` classes and semantic tokens. Do not add global `button`, `input`, or theme-wide resets.
 4. Load only the component CSS and JS a screen uses. Do not introduce React for these components.
 5. Preserve native control semantics, visible focus, keyboard use, responsive layout, RTL, and reduced-motion support.
+
+## Theme tools (1.5)
+
+See [settings layouts/fields, demo screens and host adapters](docs/theme-tools.md).
+The current release version is `v1.5.0`. WordPress behavior is supplied by `webilia/wp:^1.2`.

@@ -1,16 +1,17 @@
 {
   "name": "@webilia/ui-build",
   "private": true,
-  "version": "1.4.1",
+  "version": "1.5.0",
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test tests/js/*.test.mjs",
-    "test:browser": "node tests/browser/parity.cjs",
-    "test:php": "php tests/php/renderers.php && php tests/php/wordpress-assets.php && php tests/php/wordpress-admin-header.php && php tests/php/engagement.php",
+    "test:browser": "node tests/browser/parity.cjs && node tests/browser/theme-tools.cjs",
+    "test:php": "php tests/php/renderers.php && php tests/php/wordpress-assets.php && php tests/php/wordpress-admin-header.php && php tests/php/engagement.php && php tests/php/theme-tools.php",
     "check": "npm run build && npm test && npm run test:php"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",
+    "jquery": "^3.7.1",
     "jsdom": "^26.1.0",
     "playwright": "^1.64.0",
     "postcss": "^8.5.0",

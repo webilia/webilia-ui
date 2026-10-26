@@ -1,0 +1,80 @@
+.wui.wui-sp-root {
+/* Make your buttons look like WP Customizer subsection rows */
+.wui-sp-customizer-subsection-links .accordion-section-title{
+    margin: 0;
+}
+
+.wui-sp-customizer-subsection-links .wui-sp-customizer-subsection-link{
+    display: block;
+    position: relative;
+    width: 100%;
+    text-align: left;
+
+    /* WP-ish spacing */
+    padding: 12px 20px 12px 14px;
+
+    /* WP-ish typography */
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+
+    /* WP-ish colors */
+    color: #1d2327;
+    background: #fff;
+
+    /* WP uses separators, not boxed cards */
+    border: 0;
+    border-top: 1px solid #dcdcde;
+
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* If you have a list, give it a bottom border like WP accordions */
+.wui-sp-customizer-subsection-links{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.wui-sp-customizer-subsection-links .control-section{
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Right chevron arrow like WP accordion */
+.wui-sp-customizer-subsection-links .wui-sp-customizer-subsection-link::after{
+    content: "\f345";              /* dashicons-arrow-right-alt2 */
+    font-family: dashicons;
+    font-size: 18px;
+    line-height: 1;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #50575e;
+}
+
+/* Hover/focus like WP */
+.wui-sp-customizer-subsection-links .wui-sp-customizer-subsection-link:hover,
+.wui-sp-customizer-subsection-links .wui-sp-customizer-subsection-link:focus{
+    background: #f6f7f7;
+    color: #1d2327;
+    outline: none;
+}
+
+/* WP focus ring vibe */
+.wui-sp-customizer-subsection-links .wui-sp-customizer-subsection-link:focus{
+    box-shadow: 0 0 0 1px #2271b1, 0 0 0 3px rgba(34,113,177,.35);
+}
+
+/* Optional: active/pressed feel */
+.wui-sp-customizer-subsection-links .wui-sp-customizer-subsection-link:active{
+    background: #f0f0f1;
+}
+
+
+
+}

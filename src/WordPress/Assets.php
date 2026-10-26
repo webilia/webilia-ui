@@ -8,6 +8,9 @@ use Webilia\UI\Version;
 final class Assets
 {
     private const COMPONENTS = [
+        'settings-panel' => ['style' => 'settings-panel', 'script' => 'settings-panel', 'requires' => ['forms', 'buttons', 'surfaces', 'icons']],
+        'settings-customizer' => ['style' => 'settings-customizer'],
+        'demo-import' => ['style' => 'demo-import', 'script' => 'demo-import', 'requires' => ['forms', 'buttons', 'surfaces', 'icons']],
         'announcements' => ['style' => 'announcements', 'script' => 'announcements', 'requires' => ['modal', 'icons', 'badge']],
         'deactivation' => ['style' => 'deactivation', 'script' => 'deactivation', 'requires' => ['modal', 'forms', 'icons']],
         'layout' => ['style' => 'layout'],

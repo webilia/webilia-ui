@@ -1,0 +1,54 @@
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const baseURL = process.env.PARITY_BASE_URL || 'http://127.0.0.1:8877';
+(async () => {
+    const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined });
+    try {
+        const page = await browser.newPage({viewport:{width:1280,height:900}});
+        page.setDefaultTimeout(6000);
+        const failures = [];
+        page.on('pageerror', error => failures.push(error.message));
+        page.on('response', response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
+        for (const mobile of [false,true]) {
+            await page.setViewportSize(mobile ? {width:390,height:844} : {width:1280,height:900});
+            await page.emulateMedia({reducedMotion:mobile?'reduce':'no-preference'});
+            await page.goto(`${baseURL}/playground/theme-tools.php${mobile?'?rtl=1':''}`);
+            assert.equal(await page.locator('.wui-sp-panel').evaluate(el => getComputedStyle(el).display),'flex');
+            await page.locator('#title').fill('Saved shape');
+            await page.locator('.wui-sp-repeater-add').click();
+            assert.equal(await page.locator('.wui-sp-repeater-item').count(),2);
+            await page.locator('.wui-sp-repeater-input').last().fill('Second');
+            assert.deepEqual(JSON.parse(await page.locator('#rows').inputValue()),[{title:'First'},{title:'Second'}]);
+            assert.equal(await page.locator('#legacy').inputValue(),'legacy');
+            await page.locator('a[href="#wui-sp-section-advanced"]').click();
+            await page.locator('.wui-sp-import-export').waitFor({state:'visible'});
+            await page.locator('a[href="#wui-sp-section-general"]').click();
+            const exported = await page.locator('.wui-sp-panel-form').evaluate(el => Object.fromEntries(new FormData(el)));
+            assert.equal(exported['theme[title]'],'Saved shape');
+            assert.equal(exported['theme[font][font-family]'],'Poppins');
+            await page.locator('.js-wui-sp-demo-search').fill('Business');
+            assert.equal(await page.locator('.js-wui-sp-demo-item:visible').count(),1);
+            await page.locator('.js-wui-sp-demo-item:visible').hover();
+            await page.locator('.js-wui-di-import-button:visible').click();
+            await page.locator('.js-wui-di-setup-continue').click();
+            await page.locator('.js-wui-di-page[data-page-state="done"]').waitFor();
+            assert.equal(await page.locator('.js-wui-di-page').getAttribute('data-requests'),'3');
+            await page.locator('#enabled').focus();
+            await page.keyboard.press('Space');
+            await page.waitForTimeout(450);
+            assert.equal(await page.locator('[data-field-id="title"]').evaluate(el => el.classList.contains('is-hidden')),true);
+            assert.equal(await page.locator('.js-wdi-page').textContent(),'Legacy importer');
+            assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+            await page.screenshot({path:`docs/theme-tools-${mobile?'mobile-rtl':'desktop'}.png`,fullPage:true});
+        }
+        await page.goto(`${baseURL}/playground/theme-tools.php`);
+        await page.locator('.js-wui-di-page').evaluate(el => {el.dataset.fail='1';});
+        await page.locator('.js-wui-sp-demo-item').first().hover();
+        await page.locator('.js-wui-di-import-button').first().click();
+        await page.locator('.js-wui-di-setup-continue').click();
+        await page.getByText('Fixture import failure').first().waitFor();
+        assert.equal(await page.locator('.js-wui-di-content-restart').isEnabled(),true);
+        assert.deepEqual(failures,[]);
+        console.log('Theme-tools browser checks passed.');
+    } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode=1; });
