@@ -47,3 +47,34 @@ test('Customizer child discovery, link activation, and deep-link collapse use em
     assert.equal(sections.child.container.hasClass('wui-sp-customizer-child-hidden'),false);
     await new Promise(resolve=>setTimeout(resolve,0));
 });
+
+
+test('native color-picker labels remain text after icon decoration', async t => {
+    const dom=new JSDOM('<div class="wp-picker-container"><button type="button"><span class="wp-color-result-text"></span></button><input class="wui-sp-colorpicker"><button class="wp-picker-clear">Clear</button></div>',{runScripts:'outside-only',url:'https://site.test/'});
+    const w=dom.window,$=jquery(w);w.jQuery=$;
+    t.after(async()=>{await new Promise(resolve=>setTimeout(resolve,0));w.close();});
+    w.matchMedia=()=>({matches:true});w.requestAnimationFrame=fn=>fn();
+    const label='<img src=x onerror=alert(1)> & Choose color';
+    $('.wp-color-result-text').text(label);
+    $.fn.wpColorPicker=function(){this.data('wpColorPicker',true);return this;};
+    w.eval(await readFile(resolve(root,'dist/js/settings-panel.js'),'utf8'));
+    w.eval(await readFile(resolve(root,'dist/wordpress/js/settings-panel.js'),'utf8'));
+    assert.equal(w.document.querySelector('.screen-reader-text').textContent,label);
+    assert.equal(w.document.querySelector('img,[onerror]'),null);
+    assert.equal(w.document.querySelectorAll('.wui-sp-color-icon').length,1);
+});
+
+test('WP demo transport prepares legacy completion markup as inert plain text', async t => {
+    const dom=new JSDOM('<div class="js-wui-di-page"></div>',{runScripts:'outside-only'});
+    const w=dom.window,$=jquery(w);w.jQuery=$;t.after(()=>w.close());
+    let adapter;
+    w.WebiliaUI={demoImport:{init(root,options){adapter=options;}}};
+    const response={title:'Import &amp; Finish',message:'<p>Ready &amp; safe</p><img src=x onerror=alert(1)>'};
+    $.ajax=()=>$.Deferred().resolve(response).promise();
+    w.eval(await readFile(resolve(root,'dist/wordpress/js/demo-import.js'),'utf8'));
+    const result=await new Promise((resolve,reject)=>adapter.request({data:{action:'after_import_data'}}).done(resolve).fail(reject));
+    assert.equal(result.title,'Import & Finish');
+    assert.equal(result.message,'Ready & safe');
+    assert.equal(response.message,'<p>Ready &amp; safe</p><img src=x onerror=alert(1)>');
+    assert.equal(w.document.querySelector('img,[onerror]'),null);
+});

@@ -1146,7 +1146,13 @@ class Fields
         foreach ($value as $key)
         {
             if (!isset($args['options'][$key])) continue;
-            $items .= '<li data-key="' . P::escape($key) . '"><input type="hidden" name="' . P::escape($args['name']) . '[]" value="' . P::escape($key) . '"' . $customizer_link_attr . '>' . P::escape($args['options'][$key]) . '</li>';
+            $label = static::label_text($args['options'][$key]);
+            $controls = '';
+            foreach (['up' => ['Move %s up', '↑'], 'down' => ['Move %s down', '↓']] as $direction => $control)
+            {
+                $controls .= '<button type="button" class="wui-button wui-button--tertiary wui-sp-text-button wui-sp-sortable-move" data-direction="' . $direction . '" aria-label="' . P::escape(sprintf(static::translate($control[0]), $label)) . '">' . $control[1] . '</button>';
+            }
+            $items .= '<li data-key="' . P::escape($key) . '"><input type="hidden" name="' . P::escape($args['name']) . '[]" value="' . P::escape($key) . '"' . $customizer_link_attr . '><span class="wui-sp-sortable-label">' . P::escape($label) . '</span><span class="wui-sp-sortable-actions">' . $controls . '</span></li>';
         }
 
         $content = '<ul class="wui-sp-sortable wui-sp-field-type-sortable" id="' . P::escape($args['id'] ?? '') . '">' . $items . '</ul>';

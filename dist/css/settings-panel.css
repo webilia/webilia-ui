@@ -2044,3 +2044,18 @@
   outline: 2px solid var(--webilia-panel-accent, #2271b1);
   outline-offset: 2px;
 }
+.wui.wui-sp-root .wui-sp-radio-toggle input[type=radio]:focus-visible + label,
+.wui.wui-sp-root .wui-sp-image-option:has(input[type=radio]:focus-visible) {
+  outline: 2px solid var(--webilia-panel-accent, #2271b1);
+  outline-offset: 2px;
+}
+.wui.wui-sp-root .wui-sp-sortable li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.wui.wui-sp-root .wui-sp-sortable-actions {
+  display: inline-flex;
+  gap: 4px;
+}

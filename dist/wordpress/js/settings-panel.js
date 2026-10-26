@@ -52,7 +52,10 @@
           if (existing) label = existing;
           text.empty();
           text.append('<i class="fa-solid fa-paintbrush wui-sp-color-icon" aria-hidden="true"></i>');
-          text.append('<span class="screen-reader-text">' + label + "</span>");
+          const labelNode = document.createElement("span");
+          labelNode.className = "screen-reader-text";
+          labelNode.textContent = label;
+          text.append(labelNode);
         }
         function resolveColorOriginValue($input) {
           const origin = $input.attr("data-wui-sp-color-origin") || $input.closest(".wui-sp-field").attr("data-wui-sp-color-origin");

@@ -108,6 +108,10 @@ registers its native color-picker module; typography does not reference a UI col
 `config.panel_intro` is escaped text; use the explicit trusted `panel_intro_html` slot for markup.
 The WP adapter adds isolated endpoint action names. Do not mutate the supplied request payload,
 because a content continuation can reuse it. Existing response status names are preserved.
+Final responses may supply plain-text `title` and `message` for the completion panel; omitted
+fields retain the template text. WP's browser adapter converts its legacy HTML completion fields
+to text without changing the backend response shape. Sortable fields include named up/down
+buttons usable with Tab and Enter/Space; an optional host adapter adds pointer drag sorting.
 Modules initialize only on explicit calls, once per page/root, and do not attach to legacy selectors.
 
 Selectors use `wui-sp-*` for settings and `wui-di-*` for importer presentation. Settings

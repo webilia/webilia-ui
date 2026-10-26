@@ -1,5 +1,9 @@
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
+const { execFileSync } = require('node:child_process');
+const { resolve } = require('node:path');
+const bootstrap = resolve(__dirname, '../php/bootstrap.php').replace(/'/g, "\\'");
+const choiceFixture = execFileSync('php', ['-r', `require '${bootstrap}'; echo '<div class="wui-sp-field-type-button_set">' . \\Webilia\\UI\\SettingsPanel\\Fields::button_set(['name'=>'theme[choice]','id'=>'choice','value'=>'one','options'=>['one'=>'One','two'=>'Two']]) . '</div><div class="wui-sp-field-type-image_select">' . \\Webilia\\UI\\SettingsPanel\\Fields::image_select(['name'=>'theme[image_choice]','value'=>'one','options'=>['one'=>'Image one','two'=>'Image two']]) . '</div>' . \\Webilia\\UI\\SettingsPanel\\Fields::sortable(['name'=>'theme[order]','options'=>['one'=>'One','two'=>'Two']]);`], {encoding:'utf8'});
 const baseURL = process.env.PARITY_BASE_URL || 'http://127.0.0.1:8877';
 (async () => {
     const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined });
@@ -27,6 +31,33 @@ const baseURL = process.env.PARITY_BASE_URL || 'http://127.0.0.1:8877';
             for (const selector of ['.wui-sp-action-save', '.wui-sp-action-reset-all', '.wui-sp-action-reset-section-icon']) {
                 await visibleFocus(page.locator(selector).first());
             }
+            await page.locator('.wui-sp-panel-form').evaluate((form, html) => {
+                const fixture=document.createElement('div');
+                fixture.id='choice-keyboard-fixture';
+                fixture.innerHTML=html;
+                form.append(fixture);
+                WebiliaUI.settingsPanel.create().app.initContext(fixture);
+            },choiceFixture);
+            const choice=page.locator('#choice-one');
+            await page.keyboard.press('Tab');
+            await choice.focus();
+            assert.equal(await choice.evaluate(el=>getComputedStyle(el.nextElementSibling).outlineStyle !== 'none' && parseFloat(getComputedStyle(el.nextElementSibling).outlineWidth)>0),true);
+            await page.keyboard.press('ArrowRight');
+            assert.equal(await page.locator('#choice-two').evaluate(el=>el===document.activeElement && el.checked && getComputedStyle(el.nextElementSibling).outlineStyle !== 'none'),true);
+            const imageChoice=page.locator('[name="theme[image_choice]"]').first();
+            await imageChoice.focus();
+            assert.equal(await imageChoice.evaluate(el=>getComputedStyle(el).opacity==='0' && getComputedStyle(el.closest('label')).outlineStyle !== 'none'),true);
+            const move=page.locator('.wui-sp-sortable [data-key="one"] [data-direction="down"]');
+            await move.focus();
+            await page.keyboard.press('Enter');
+            assert.deepEqual(await page.locator('.wui-sp-sortable input').evaluateAll(inputs=>inputs.map(input=>input.value)),['two','one']);
+            assert.equal(await move.evaluate(el=>el===document.activeElement),true);
+            await page.keyboard.press('Space');
+            assert.deepEqual(await page.locator('.wui-sp-sortable input').evaluateAll(inputs=>inputs.map(input=>input.value)),['two','one']);
+            await page.locator('.wui-sp-sortable [data-key="one"] [data-direction="up"]').focus();
+            await page.keyboard.press('Space');
+            assert.deepEqual(await page.locator('.wui-sp-sortable input').evaluateAll(inputs=>inputs.map(input=>input.value)),['one','two']);
+            await page.locator('#choice-keyboard-fixture').evaluate(el=>el.remove());
             await page.locator('#title').fill('Saved shape');
             await page.locator('.wui-sp-repeater-add').click();
             assert.equal(await page.locator('.wui-sp-repeater-item').count(),2);

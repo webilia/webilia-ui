@@ -322,3 +322,46 @@ test('plugin switches have unique IDs and names across setup renders', async t =
     $(el).find('.js-wui-di-import-form').trigger('submit');
     assert.equal([...el.querySelectorAll('.js-wui-di-setup-plugins input[type="checkbox"]')].some(input=>ids.includes(input.id)),false);
 });
+
+
+for (const [actual, expected, equal] of [['',null,true],['1',2,false],['0',2,false],['1','other',false],['1',1,true],['true',1,true],['0',false,true],['2',2,true],['2','02',false]]) test(`conditional equality keeps ${actual} distinct from ${JSON.stringify(expected)} unless both boolean-like`, async t => {
+    const rule = operator => JSON.stringify(['choice',operator,expected]).replace(/'/g,'&#39;');
+    const { document } = await settings(t, `<div class="wui-sp-field" data-field-id="choice"><input value="${actual}"></div><div id="equals" class="wui-sp-field" data-required='${rule('=')}'></div><div id="not-equals" class="wui-sp-field" data-required='${rule('!=')}'></div>`);
+    assert.equal(document.getElementById('equals').classList.contains('is-hidden'),!equal);
+    assert.equal(document.getElementById('not-equals').classList.contains('is-hidden'),equal);
+});
+
+test('sortable move buttons work without a drag adapter and preserve focus and submitted order', async t => {
+    const html = renderPHP("\\Webilia\\UI\\SettingsPanel\\Fields::sortable(['name'=>'theme[order]','options'=>['first'=>'First & main','second'=>'Second','third'=>'Third']])");
+    const { w,document,runtime } = await settings(t,'<form>'+html+'</form>');
+    runtime.app.initContext(document);
+    const list=document.querySelector('.wui-sp-sortable');
+    const events=[];
+    for(const type of ['input','change']) list.addEventListener(type,()=>events.push(type));
+    const down=list.querySelector('[data-key="first"] [data-direction="down"]');
+    assert.equal(down.getAttribute('aria-label'),'Move First & main down');
+    down.click();
+    assert.equal(document.activeElement,down);
+    assert.deepEqual(new w.FormData(document.querySelector('form')).getAll('theme[order][]'),['second','first','third']);
+    assert.deepEqual(events,['input','change']);
+    list.querySelector('[data-key="second"] [data-direction="up"]').click();
+    assert.deepEqual(events,['input','change']);
+    list.querySelector('[data-key="first"] [data-direction="up"]').click();
+    assert.deepEqual(new w.FormData(document.querySelector('form')).getAll('theme[order][]'),['first','second','third']);
+    assert.equal(events.length,4);
+});
+
+test('final importer responses render completion text safely and missing titles restore the template', async t => {
+    const html = renderPHP("\\Webilia\\UI\\DemoImport\\Screen::render(['ajax_url'=>'/mock','ajax_nonce'=>'nonce','demos'=>[['key'=>'starter','import_file_name'=>'Starter']],'plugins_by_demo'=>[[]]])");
+    let final={title:'Finished & <img src=x onerror=alert(1)>',message:'Follow <b>these instructions</b> & enjoy'};
+    const { $,el } = await importer(t,html,config=>config.data.action==='import_demo_data'?{status:'afterAllImportAJAX'}:final);
+    function run() { $(el).find('.js-wui-di-import-form').trigger('submit');el.querySelector('.js-wui-di-setup-continue').click(); }
+    run();
+    assert.equal(el.querySelector('.js-wui-di-done-title').textContent,final.title);
+    assert.equal(el.querySelector('.js-wui-di-done-message').textContent,final.message);
+    assert.equal(el.querySelector('.js-wui-di-done-title img, .js-wui-di-done-message b'),null);
+    final={message:'Second import complete'};run();
+    assert.equal(el.querySelector('.js-wui-di-done-title').textContent.includes('Starter'),true);
+    assert.equal(el.querySelector('.js-wui-di-done-title').textContent.includes('<img'),false);
+    assert.equal(el.querySelector('.js-wui-di-done-message').textContent,'Second import complete');
+});

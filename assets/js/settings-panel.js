@@ -453,11 +453,11 @@ export function create(options = {}) {
             const a = normalizeScalar(actual);
             const e = normalizeScalar(expected);
 
-            if (typeof a === 'boolean' || typeof e === 'boolean') {
-                return Boolean(a) === Boolean(e);
+            if (typeof a === 'boolean' && typeof e === 'boolean') {
+                return a === e;
             }
 
-            return String(a) === String(e);
+            return String(actual == null ? '' : actual) === String(expected == null ? '' : expected);
         }
 
         function compareValues(actual, operator, expected) {
@@ -1023,16 +1023,29 @@ export function create(options = {}) {
     const SortablesModule = {
         name: 'SortablesModule',
         init(context) {
-            if (!options.sortable) return;
             const lists = Utils.qsa('.wui-sp-sortable', context);
             if (context.matches && context.matches('.wui-sp-sortable')) lists.unshift(context);
             lists.forEach(list => {
                 if (list.dataset.wuiSortableReady) return;
                 list.dataset.wuiSortableReady = '1';
-                options.sortable(list, () => {
+                const changed = () => {
                     const target = list.querySelector('input') || list;
                     target.dispatchEvent(new Event('input', { bubbles: true }));
                     target.dispatchEvent(new Event('change', { bubbles: true }));
+                };
+                if (options.sortable) options.sortable(list, changed);
+                list.addEventListener('click', event => {
+                    const button = event.target.closest('.wui-sp-sortable-move');
+                    if (!button || button.closest('.wui-sp-sortable') !== list) return;
+                    event.preventDefault();
+                    const item = button.closest('li');
+                    const up = button.dataset.direction === 'up';
+                    const sibling = up ? item.previousElementSibling : item.nextElementSibling;
+                    if (!sibling) return;
+                    if (up) list.insertBefore(item, sibling);
+                    else list.insertBefore(sibling, item);
+                    button.focus();
+                    changed();
                 });
             });
         }

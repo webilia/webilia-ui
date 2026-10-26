@@ -63,10 +63,13 @@ var __wuiModule = (() => {
       contentStageLabel: $(".js-wui-di-content-stage-label"),
       pluginContext: $(".js-wui-di-plugin-context"),
       contentContext: $(".js-wui-di-content-context"),
-      doneDemoName: $(".js-wui-di-done-demo-name"),
+      doneTitle: $(".js-wui-di-done-title"),
+      doneMessage: $(".js-wui-di-done-message"),
       visitSite: $(".js-wui-di-visit-site"),
       guideLink: $(".js-wui-di-guide-link")
     };
+    const doneTitleTemplate = dom.doneTitle.html();
+    const doneMessageTemplate = dom.doneMessage.html();
     function t(key) {
       return Object.prototype.hasOwnProperty.call(i18n, key) ? i18n[key] : "";
     }
@@ -269,7 +272,8 @@ var __wuiModule = (() => {
       setStageLabel(dom.contentStageLabel, t("stage_waiting"), "info");
       dom.pluginRestartButton.hide();
       dom.contentRestartButton.hide();
-      dom.doneDemoName.text("");
+      dom.doneTitle.html(doneTitleTemplate || "");
+      dom.doneMessage.html(doneMessageTemplate || "");
     }
     function showSetup(selected, demoName, demoImage, plugins, categories) {
       currentImport = {
@@ -451,7 +455,9 @@ var __wuiModule = (() => {
       setTimelineState("done", "done");
       setStageLabel(dom.contentStageLabel, t("stage_completed"), "success");
       appendLog(dom.contentLog, t("log_content_success"), "success");
-      dom.doneDemoName.text(currentImport && currentImport.demoName ? currentImport.demoName + " " : "");
+      dom.doneTitle.find(".js-wui-di-done-demo-name").text(currentImport && currentImport.demoName ? currentImport.demoName + " " : "");
+      if (response && typeof response.title === "string") dom.doneTitle.text(response.title);
+      if (response && typeof response.message === "string") dom.doneMessage.text(response.message);
       resetFooterButtons();
       setActiveStep("done");
     }
