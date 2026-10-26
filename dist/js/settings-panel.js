@@ -159,8 +159,8 @@ var __wuiModule = (() => {
         id = Utils.normalizeId(id);
         if (!id) return "";
         const section = Utils.qs('.wui-sp-panel-section[data-section="' + Utils.cssEscape(id) + '"]');
-        let hasContent = true;
-        if (section) hasContent = section.getAttribute("data-has-content") !== "0";
+        if (!section) return "";
+        const hasContent = section.getAttribute("data-has-content") !== "0";
         if (hasContent) return id;
         if (!app2.nav) return id;
         const navItem = app2.nav.querySelector('.wui-sp-nav-item[data-section="' + Utils.cssEscape(id) + '"]');
@@ -172,7 +172,7 @@ var __wuiModule = (() => {
       }
       function setActiveSection(app2, id) {
         id = resolveTargetId(app2, id);
-        if (!id || !app2.sections.length) return;
+        if (!id || !app2.sections.some((section) => section.dataset.section === id)) return;
         let matched = false;
         app2.sections.forEach((section) => {
           const isMatch = section.dataset.section === id;
@@ -204,12 +204,11 @@ var __wuiModule = (() => {
       function initActive(app2) {
         if (!app2.sections.length) return;
         const raw = Utils.normalizeId(window.location.hash);
-        let id = raw;
-        if (!id && app2.defaultSection) id = Utils.normalizeId(app2.defaultSection);
-        if (!id && app2.sections[0]) id = app2.sections[0].dataset.section;
-        id = resolveTargetId(app2, id);
+        const requested = resolveTargetId(app2, raw);
+        const current = app2.sections.find((section) => section.classList.contains("is-active"));
+        const id = requested || (raw && current ? current.dataset.section : "") || resolveTargetId(app2, app2.defaultSection) || resolveTargetId(app2, app2.sections[0].dataset.section);
         if (!id) return;
-        if (raw && raw !== id) {
+        if (requested && raw !== id) {
           window.location.hash = "#wui-sp-section-" + id;
           return;
         }
@@ -504,9 +503,10 @@ var __wuiModule = (() => {
           triggerHideAnimation(el);
         }
       }
-      function applyConditionals() {
-        const fields = document.querySelectorAll(".wui-sp-field[data-required]");
-        const isInitial = !hasRun;
+      function applyConditionals(context = document) {
+        const fields = Utils.qsa(".wui-sp-field[data-required]", context);
+        if (context.matches && context.matches(".wui-sp-field[data-required]")) fields.unshift(context);
+        const isInitial = !hasRun || context !== document;
         Array.prototype.forEach.call(fields, (field) => {
           const raw = field.getAttribute("data-required");
           if (!raw) return;
@@ -527,7 +527,7 @@ var __wuiModule = (() => {
         });
         hasRun = true;
       }
-      const applyConditionalsThrottled = Utils.rafThrottle(applyConditionals);
+      const applyConditionalsThrottled = Utils.rafThrottle(() => applyConditionals());
       function bindGlobalListeners() {
         if (bound) return;
         bound = true;
@@ -537,9 +537,8 @@ var __wuiModule = (() => {
       return {
         name: "ConditionalsModule",
         init(context) {
-          if (context !== document) return;
           bindGlobalListeners();
-          applyConditionals();
+          applyConditionals(context);
         }
       };
     })();
@@ -753,17 +752,151 @@ var __wuiModule = (() => {
         }
       };
     })();
-    const TypographyModule = /* @__PURE__ */ (function() {
-      function initTypography(context) {
-        const root = context || document;
-        Utils.qsa(".wui-sp-typography", root).forEach((wrapper) => {
-          ColorPickersModule.initPickers(wrapper);
-        });
+    const MediaControlsModule = /* @__PURE__ */ (function() {
+      let bound = false;
+      function change(input, value) {
+        if (!input) return;
+        input.value = value;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      function previewUrl(value) {
+        if (!value) return "";
+        try {
+          const url = new URL(value, document.baseURI);
+          return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+        } catch (error) {
+          return "";
+        }
+      }
+      function updateMedia(group) {
+        const remove = group.querySelector(".wui-sp-media-remove");
+        const url = group.querySelector(".wui-sp-media-url");
+        const id = group.querySelector(".wui-sp-media-id");
+        if (remove) remove.classList.toggle("is-hidden", !(url && url.value) && !(id && id.value));
+      }
+      function renderMedia(group, data) {
+        change(group.querySelector(".wui-sp-media-url"), data.url || "");
+        change(group.querySelector(".wui-sp-media-id"), data.id || "");
+        let preview = group.querySelector(".wui-sp-media-preview");
+        const inputRow = group.querySelector(".wui-sp-media-input");
+        if (!preview && inputRow) {
+          preview = document.createElement("div");
+          preview.className = "wui-sp-field-row wui-sp-media-preview";
+          inputRow.before(preview);
+        }
+        if (preview) {
+          preview.replaceChildren();
+          const isImage = data.type === "image" || /\.(?:png|jpe?g|gif|webp|svg)(?:[?#]|$)/i.test(data.url || "");
+          const size = data.sizes && (data.sizes.thumbnail || data.sizes.medium || data.sizes.full);
+          const url = previewUrl(isImage && size && size.url || data.url || "");
+          if (url) {
+            const element = document.createElement(isImage ? "img" : "a");
+            if (isImage) {
+              element.className = "wui-sp-media-preview-image";
+              element.src = url;
+              element.alt = "";
+            } else {
+              element.href = url;
+              element.textContent = data.url;
+              element.target = "_blank";
+              element.rel = "noopener noreferrer";
+            }
+            preview.append(element);
+          }
+        }
+        updateMedia(group);
+      }
+      function updateGallery(wrapper, changed = true) {
+        const list = wrapper.querySelector(".wui-sp-gallery-items");
+        const empty = wrapper.querySelector(".wui-sp-gallery-empty");
+        if (!list) return;
+        const ids = Array.from(list.querySelectorAll("li[data-id]"), (item) => item.dataset.id);
+        if (empty) empty.style.display = ids.length ? "none" : "block";
+        if (changed) change(wrapper.querySelector(".wui-sp-gallery-input"), ids.join(","));
+      }
+      function addImages(wrapper, selection) {
+        const list = wrapper.querySelector(".wui-sp-gallery-items");
+        if (!list) return;
+        const ids = new Set(Array.from(list.children, (item) => item.dataset.id));
+        for (const data of Array.isArray(selection) ? selection : [selection]) {
+          if (!data || !data.id || ids.has(String(data.id))) continue;
+          const item = document.createElement("li");
+          item.dataset.id = String(data.id);
+          ids.add(item.dataset.id);
+          const url = previewUrl(data.sizes && data.sizes.thumbnail && data.sizes.thumbnail.url || data.url || "");
+          if (url) {
+            const image = document.createElement("img");
+            image.src = url;
+            image.alt = "";
+            item.append(image);
+          } else {
+            const missing = document.createElement("span");
+            missing.className = "wui-sp-gallery-missing";
+            missing.textContent = labels.missingImage || "Missing";
+            item.append(missing);
+          }
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "wui-sp-gallery-remove wui-button wui-button--icon";
+          remove.setAttribute("aria-label", labels.removeImage || "Remove image");
+          const icon = document.createElement("span");
+          icon.className = "wui-icon wui-icon--cross";
+          icon.setAttribute("aria-hidden", "true");
+          remove.append(icon);
+          item.append(remove);
+          list.append(item);
+        }
+        updateGallery(wrapper);
+      }
+      function handleClick(event) {
+        const button = event.target.closest(".wui-sp-media-select, .wui-sp-media-remove, .wui-sp-gallery-select, .wui-sp-gallery-remove, .wui-sp-gallery-clear");
+        if (!button) return;
+        event.preventDefault();
+        const media = button.closest(".wui-sp-media");
+        if (media) {
+          if (button.matches(".wui-sp-media-remove")) renderMedia(media, {});
+          else if (options.selectMedia) options.selectMedia({
+            title: labels.selectMedia || "Select Media",
+            button: { text: labels.useMedia || "Use this media" },
+            multiple: false
+          }, (data) => {
+            if (data) renderMedia(media, data);
+          });
+          return;
+        }
+        const gallery = button.closest(".wui-sp-gallery");
+        if (!gallery) return;
+        if (button.matches(".wui-sp-gallery-remove")) {
+          const item = button.closest("li");
+          if (item) item.remove();
+          updateGallery(gallery);
+        } else if (button.matches(".wui-sp-gallery-clear")) {
+          const list = gallery.querySelector(".wui-sp-gallery-items");
+          if (list) list.replaceChildren();
+          updateGallery(gallery);
+        } else if (options.selectMedia) options.selectMedia({
+          title: labels.selectImages || "Select Images",
+          button: { text: labels.useImages || "Use images" },
+          multiple: true
+        }, (selection) => addImages(gallery, selection));
       }
       return {
-        name: "TypographyModule",
+        name: "MediaControlsModule",
         init(context) {
-          initTypography(context);
+          const media = Utils.qsa(".wui-sp-media", context);
+          const galleries = Utils.qsa(".wui-sp-gallery", context);
+          if (context.matches && context.matches(".wui-sp-media")) media.push(context);
+          if (context.matches && context.matches(".wui-sp-gallery")) galleries.push(context);
+          media.forEach(updateMedia);
+          galleries.forEach((wrapper) => updateGallery(wrapper, false));
+          if (bound) return;
+          bound = true;
+          document.addEventListener("click", handleClick);
+          for (const event of ["input", "change"]) document.addEventListener(event, (e) => {
+            const group = e.target.closest(".wui-sp-media");
+            if (group) updateMedia(group);
+          });
         }
       };
     })();
@@ -1505,8 +1638,8 @@ var __wuiModule = (() => {
     app.register(ColorInheritanceModule);
     app.register(TabsModule);
     app.register(SlidersModule);
-    app.register(TypographyModule);
     app.register(GoogleMapsModule);
+    app.register(MediaControlsModule);
     app.register(RepeatersModule);
     app.register(ImportExportModule);
     app.register(PanelThemesModule);

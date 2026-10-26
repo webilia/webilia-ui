@@ -1572,10 +1572,9 @@ ul.wui-di-sub-tabs li a {
     display: inline-block;
 }
 
-ul.wui-di-sub-tabs li a:active,
-ul.wui-di-sub-tabs li a:focus {
-    outline: none;
-    box-shadow: none;
+ul.wui-di-sub-tabs li a:focus-visible {
+    outline: 2px solid var(--wui-color-focus);
+    outline-offset: 2px;
 }
 
 ul.wui-di-sub-tabs li.wui-di-sub-tabs-active a {

@@ -8,6 +8,7 @@ use Webilia\UI\Support\Presentation as P;
 final class Layout
 {
     public const LABELS = [
+        'Toggle %s submenu',
         'Active',
         'Add Images',
         'Add Item',

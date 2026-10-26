@@ -173,7 +173,7 @@ export function init(root, options = {}) {
             const $item = $(this);
             const name = ($item.data('name') || '').toString().toLowerCase();
             const categories = ($item.data('categories') || '').toString();
-            const categoryMatch = category === 'all' || categories.indexOf(category) !== -1;
+            const categoryMatch = category === 'all' || categories.split(',').includes(category);
             const searchMatch = search === '' || name.indexOf(search) !== -1;
             const isVisible = categoryMatch && searchMatch;
 
@@ -412,6 +412,7 @@ export function init(root, options = {}) {
 
             runPluginInstallAjax(selected, plugin.slug, nonce, ajaxUrl, function (response) {
                 const status = response && response.status ? response.status : 'active';
+                plugin.status = status;
                 updatePluginStatus(plugin.slug, status);
                 appendLog(dom.pluginLog, formatString(t('log_plugin_ready'), [pluginName]), 'success');
                 i += 1;

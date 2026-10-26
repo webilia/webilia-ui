@@ -1390,10 +1390,9 @@
   color: #000000;
   display: inline-block;
 }
-.wui.wui-di-root ul.wui-di-sub-tabs li a:active,
-.wui.wui-di-root ul.wui-di-sub-tabs li a:focus {
-  outline: none;
-  box-shadow: none;
+.wui.wui-di-root ul.wui-di-sub-tabs li a:focus-visible {
+  outline: 2px solid var(--wui-color-focus);
+  outline-offset: 2px;
 }
 .wui.wui-di-root ul.wui-di-sub-tabs li.wui-di-sub-tabs-active a {
   background-color: #dcdcde;

@@ -271,7 +271,7 @@ class Fields
         $hidden = $customizer_link_attr === ''
             ? '<input type="hidden" name="' . P::escape($args['name']) . '" value="0">'
             : '';
-        $checkbox_link_attr = '';
+        $checkbox_link_attr = $customizer_link_attr;
 
         return '<label class="wui-sp-switch">
             ' . $hidden . '
@@ -865,6 +865,7 @@ class Fields
     {
         $args = static::normalize_args($args);
         $value = $args['value'] ?? '';
+        if (is_array($value) || is_object($value)) $value = json_encode($value);
         $option_name = $args['option_name'] ?? '';
         $base_id = $args['id'] ?? '';
         $file_id = $base_id ? $base_id . '_file' : '';

@@ -34,7 +34,7 @@ for standard field-control labels. Core field methods use late-static binding so
 to nested controls as well.
 
 `Layout` accepts prepared section/field arrays, `config`, `post_url`, `nonce`, `header_html`,
-`hidden_html`, optional `actions_top_html`/`actions_bottom_html`, and translated `labels` maps
+`hidden_html`, optional `panel_intro_html`, `actions_top_html`/`actions_bottom_html`, and translated `labels` maps
 keyed by the English labels in `Layout::LABELS`. `Actions::render(['bottom' => true])` renders a
 standalone action bar. The layout renders a `.wui` wrapper; standalone fields need a `.wui.wui-sp-root`
 ancestor. Text and URL slots are escaped. `*_html`, field `html`, `panel_attrs`, raw/content/info
@@ -91,6 +91,12 @@ Settings presentation uses vanilla JavaScript. The importer preserves its existi
 interaction model, accepting jQuery from the host instead of bundling another copy. Its injected
 `request(config)` returns a jQuery-compatible promise (`done`/`fail`), receiving data with stage
 actions `install_plugin`, `import_demo_data`, `import_customizer_data`, `after_import_data`.
+`selectMedia(config, done)` supplies one prepared attachment object for media/repeater selection,
+and an array of attachment objects for gallery selection (`config.multiple: true`). Objects use
+`id`, `url`, optional `type`, and optional `sizes.thumbnail.url` for previews. The shared runtime
+handles selection, remove/clear controls, and value-change events. WP supplies the picker and
+registers its native color-picker module; typography does not reference a UI color-picker global.
+`config.panel_intro` is escaped text; use the explicit trusted `panel_intro_html` slot for markup.
 The WP adapter adds isolated endpoint action names. Do not mutate the supplied request payload,
 because a content continuation can reuse it. Existing response status names are preserved.
 Modules initialize only on explicit calls, once per page/root, and do not attach to legacy selectors.

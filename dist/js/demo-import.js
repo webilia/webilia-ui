@@ -168,7 +168,7 @@ var __wuiModule = (() => {
         const $item = $(this);
         const name = ($item.data("name") || "").toString().toLowerCase();
         const categories = ($item.data("categories") || "").toString();
-        const categoryMatch = category === "all" || categories.indexOf(category) !== -1;
+        const categoryMatch = category === "all" || categories.split(",").includes(category);
         const searchMatch = search === "" || name.indexOf(search) !== -1;
         const isVisible = categoryMatch && searchMatch;
         $item.toggleClass("is-hidden-by-filter", !isVisible);
@@ -356,6 +356,7 @@ var __wuiModule = (() => {
         appendLog(dom.pluginLog, formatString(t("log_installing_plugin"), [pluginName, i + 1, queue.length]), "info");
         runPluginInstallAjax(selected, plugin.slug, nonce, ajaxUrl, function(response) {
           const status = response && response.status ? response.status : "active";
+          plugin.status = status;
           updatePluginStatus(plugin.slug, status);
           appendLog(dom.pluginLog, formatString(t("log_plugin_ready"), [pluginName]), "success");
           i += 1;

@@ -26,8 +26,8 @@ if (!$is_customizer) $form_attrs = 'method="post" action="' . P::url($props['pos
             <div class="wui-sp-dev-mode"><?php echo $translate('Developer Mode Enabled'); ?></div>
         <?php endif; ?>
 
-        <?php if (!empty($config['panel_intro'])) : ?>
-            <p class="wui-sp-panel-intro"><?php echo (string) ($config['panel_intro']); ?></p>
+        <?php if (!empty($config['panel_intro']) || !empty($props['panel_intro_html'])) : ?>
+            <p class="wui-sp-panel-intro"><?php echo $props['panel_intro_html'] ?? P::escape($config['panel_intro'] ?? ''); ?></p>
         <?php endif; ?>
     </div>
     <div class="wui-sp-admin-main-wrapper">
@@ -74,7 +74,7 @@ if (!$is_customizer) $form_attrs = 'method="post" action="' . P::url($props['pos
                                         <span class="wui-sp-nav-label"><?php echo P::escape($label); ?></span>
                                     </span>
                                         <?php if ($has_children) : ?>
-                                            <button type="button" class="wui-sp-nav-toggle" aria-expanded="false" aria-controls="wui-sp-subnav-<?php echo P::escape($id); ?>">
+                                            <button type="button" class="wui-sp-nav-toggle" aria-label="<?php echo P::escape(sprintf($labels['Toggle %s submenu'] ?? 'Toggle %s submenu', $label)); ?>" aria-expanded="false" aria-controls="wui-sp-subnav-<?php echo P::escape($id); ?>">
                                                 <i class="fa fa-plus" aria-hidden="true"></i>
                                                 <i class="fa fa-minus" aria-hidden="true"></i>
                                             </button>

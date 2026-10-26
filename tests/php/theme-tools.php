@@ -34,3 +34,20 @@ check(strpos(Screen::render([], 'progress-template.php'), 'data-step="customizer
 check(strpos(Actions::render(), 'wui-button') !== false, 'Existing button primitives.');
 check(!function_exists('get_option') && !class_exists('WP_Customize_Control'), 'UI must remain WordPress-independent.');
 echo "Theme-tools renderer checks passed.\n";
+
+$binding = 'data-customize-setting-link="theme[enabled]"';
+$boundSwitch = Fields::switcher(['name' => 'theme[enabled]', 'id' => 'enabled', 'value' => 1, 'customizer_link_attr' => $binding]);
+check(strpos($boundSwitch, $binding) !== false && strpos($boundSwitch, 'type="hidden"') === false, 'Native Customizer switch binding remains on the checkbox.');
+check(strpos(Fields::switcher(['name' => 'enabled', 'id' => 'enabled']), 'type="hidden"') !== false, 'Plain switches retain their unchecked fallback.');
+$exportValue = ['title' => 'Starter 雪', 'nested' => ['enabled' => true, 'rows' => [1, 2]]];
+$export = Fields::import_export(['name' => 'theme[import_export]', 'id' => 'tools', 'value' => $exportValue]);
+preg_match('/<textarea[^>]*id="tools_export"[^>]*>(.*?)<\/textarea>/s', $export, $match);
+check(json_decode(html_entity_decode($match[1], ENT_QUOTES, 'UTF-8'), true) === $exportValue, 'Array exports are structured JSON, including nested values.');
+$introText = '<script>alert("intro")</script><strong>Intro</strong>';
+$intro = Layout::render(['config' => ['option_name' => 'theme', 'panel_intro' => $introText]]);
+check(strpos($intro, '<script>') === false && strpos($intro, '&lt;script&gt;') !== false, 'Panel intro is escaped text.');
+$intro = Layout::render(['config' => ['option_name' => 'theme'], 'panel_intro_html' => '<strong>Trusted intro</strong>']);
+check(strpos($intro, '<strong>Trusted intro</strong>') !== false, 'Explicit panel-intro HTML remains available to adapters.');
+$nested = Layout::render(['config' => ['option_name' => 'theme'], 'sections' => ['parent' => ['title' => 'Parent', 'has_content' => false], 'child' => ['title' => 'Child', 'parent_id' => 'parent', 'has_content' => true]], 'labels' => ['Toggle %s submenu' => 'Open %s children']]);
+check(strpos($nested, 'aria-label="Open Parent children"') !== false && strpos($nested, 'aria-expanded="false"') !== false, 'Submenu toggle has a translated accessible name and expanded state.');
+echo "Round-one renderer regression checks passed.\n";
