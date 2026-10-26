@@ -1714,4 +1714,22 @@ ul.wui-di-sub-tabs li.wui-di-sub-tabs-active a {
     outline: 2px solid var(--webilia-panel-accent, #2271b1) !important;
     outline-offset: 2px;
   }
+  button.wui-di-primary-button:focus-visible,
+  button[type="button"].wui-di-primary-button:focus-visible,
+  form button[type="submit"].wui-di-primary-button:focus-visible,
+  form input[type="submit"].wui-di-primary-button:focus-visible,
+  a.wui-di-primary-button:focus-visible,
+  button.wui-di-secondary-button:focus-visible,
+  button[type="button"].wui-di-secondary-button:focus-visible,
+  form button[type="submit"].wui-di-secondary-button:focus-visible,
+  form input[type="submit"].wui-di-secondary-button:focus-visible,
+  a.wui-di-secondary-button:focus-visible,
+  button.wui-di-text-button:focus-visible,
+  button[type="button"].wui-di-text-button:focus-visible,
+  form button[type="submit"].wui-di-text-button:focus-visible,
+  form input[type="submit"].wui-di-text-button:focus-visible,
+  a.wui-di-text-button:focus-visible {
+    outline: 2px solid var(--webilia-panel-accent, #2271b1);
+    outline-offset: 2px;
+  }
 }

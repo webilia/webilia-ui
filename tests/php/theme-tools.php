@@ -51,3 +51,14 @@ check(strpos($intro, '<strong>Trusted intro</strong>') !== false, 'Explicit pane
 $nested = Layout::render(['config' => ['option_name' => 'theme'], 'sections' => ['parent' => ['title' => 'Parent', 'has_content' => false], 'child' => ['title' => 'Child', 'parent_id' => 'parent', 'has_content' => true]], 'labels' => ['Toggle %s submenu' => 'Open %s children']]);
 check(strpos($nested, 'aria-label="Open Parent children"') !== false && strpos($nested, 'aria-expanded="false"') !== false, 'Submenu toggle has a translated accessible name and expanded state.');
 echo "Round-one renderer regression checks passed.\n";
+
+class LocalizedFields extends Fields
+{
+    protected static function translate(string $text): string { return 'Rock & Roll <b>label</b> "quoted"'; }
+}
+foreach (['link_color', 'typography', 'background', 'dimensions', 'border', 'media', 'gallery', 'import_export', 'repeater', 'slides', 'social_profiles', 'google_maps', 'customizer', 'button_preview'] as $type) {
+    $translated = LocalizedFields::$type(['name' => 'theme[value]', 'id' => 'value', 'value' => []]);
+    check(strpos($translated, 'Rock &amp; Roll') !== false, 'Localized labels render: ' . $type);
+    check(strpos($translated, '&amp;amp;') === false && strpos($translated, '<b>label</b>') === false, 'Translated labels escape exactly once: ' . $type);
+}
+echo "Round-three localization regression checks passed.\n";

@@ -3,5 +3,6 @@
     left: -99999px !important;
     top: 0 !important;
     opacity: 0 !important;
+    visibility: hidden !important;
     pointer-events: none !important;
 }

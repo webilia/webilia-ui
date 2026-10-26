@@ -1528,3 +1528,21 @@
   outline: 2px solid var(--webilia-panel-accent, #2271b1) !important;
   outline-offset: 2px;
 }
+.wui.wui-di-root button.wui-di-primary-button:focus-visible,
+.wui.wui-di-root button[type=button].wui-di-primary-button:focus-visible,
+.wui.wui-di-root form button[type=submit].wui-di-primary-button:focus-visible,
+.wui.wui-di-root form input[type=submit].wui-di-primary-button:focus-visible,
+.wui.wui-di-root a.wui-di-primary-button:focus-visible,
+.wui.wui-di-root button.wui-di-secondary-button:focus-visible,
+.wui.wui-di-root button[type=button].wui-di-secondary-button:focus-visible,
+.wui.wui-di-root form button[type=submit].wui-di-secondary-button:focus-visible,
+.wui.wui-di-root form input[type=submit].wui-di-secondary-button:focus-visible,
+.wui.wui-di-root a.wui-di-secondary-button:focus-visible,
+.wui.wui-di-root button.wui-di-text-button:focus-visible,
+.wui.wui-di-root button[type=button].wui-di-text-button:focus-visible,
+.wui.wui-di-root form button[type=submit].wui-di-text-button:focus-visible,
+.wui.wui-di-root form input[type=submit].wui-di-text-button:focus-visible,
+.wui.wui-di-root a.wui-di-text-button:focus-visible {
+  outline: 2px solid var(--webilia-panel-accent, #2271b1);
+  outline-offset: 2px;
+}

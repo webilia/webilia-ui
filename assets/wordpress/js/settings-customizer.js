@@ -16,7 +16,7 @@
     function getChildIds() {
         const ids = [];
         $('.wui-sp-customizer-subsection-link').each(function () {
-            const id = $(this).data('webiliaSection');
+            const id = $(this).data('wuiSpSection');
             if (id) ids.push(id);
         });
         return uniqueIds(ids);
@@ -46,7 +46,9 @@
     }
 
     function getParentSectionIdForChild(childId) {
-        const $link = $('.wui-sp-customizer-subsection-link[data-wui-sp-section="' + childId + '"]').first();
+        const $link = $('.wui-sp-customizer-subsection-link').filter(function () {
+            return $(this).data('wuiSpSection') === childId;
+        }).first();
         if ($link.length) {
             return getParentSectionId($link);
         }
@@ -162,8 +164,8 @@
     .on('click.webilia', '.wui-sp-customizer-subsection-link', function (event) {
         event.preventDefault();
 
-        const targetId = $(this).data('webiliaSection');
-        const panelId  = $(this).data('webiliaPanel');
+        const targetId = $(this).data('wuiSpSection');
+        const panelId  = $(this).data('wuiSpPanel');
         const parentId = getParentSectionId($(this));
 
         if (parentId) {

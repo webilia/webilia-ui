@@ -1,4 +1,5 @@
 const initialized = new WeakSet();
+let pluginControlId = 0;
 
 /** jQuery is supplied by the host; request(config) returns a jQuery-compatible promise. */
 export function init(root, options = {}) {
@@ -208,6 +209,8 @@ export function init(root, options = {}) {
 
         $item.find('.wui-di__setup-plugin-check input[type="checkbox"]')
             .attr('data-index', index)
+            .attr('id', 'wui-di-plugin-toggle-' + (++pluginControlId))
+            .attr('aria-label', plugin.name || t('plugin_fallback_name'))
             .prop('checked', checked)
             .prop('disabled', disabled);
 

@@ -227,7 +227,13 @@
         this.start = function(loadingText) {
           if (!this.button) return;
           const text = loadingText || this.button.getAttribute("data-loading-text") || this.button.textContent || "Loading...";
-          this.button.innerHTML = '<span class="wui-sp-button-label">' + text + '</span> <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>';
+          const label = document.createElement("span");
+          label.className = "wui-sp-button-label";
+          label.textContent = text;
+          const spinner = document.createElement("i");
+          spinner.className = "fa-solid fa-spinner fa-spin";
+          spinner.setAttribute("aria-hidden", "true");
+          this.button.replaceChildren(label, document.createTextNode(" "), spinner);
           this.button.setAttribute("disabled", "disabled");
           this.button.classList.add("is-loading");
         };

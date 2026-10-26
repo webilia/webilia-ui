@@ -30,7 +30,8 @@ textarea; WP overrides it with its native editor. Media values may contain `id` 
 gallery previews are supplied through the overridable attachment lookup methods. Query-backed
 choices are passed in `options`. `Fields::typography()` accepts a `fonts` map. Field-local labels,
 placeholder text, and options are caller-owned; subclasses may override protected `translate()`
-for standard field-control labels. Core field methods use late-static binding so adapters apply
+for standard field-control labels. Return unescaped plain text from `translate()`; the renderer
+escapes each label at its final HTML/attribute boundary, including nested field options. Core field methods use late-static binding so adapters apply
 to nested controls as well.
 
 `Layout` accepts prepared section/field arrays, `config`, `post_url`, `nonce`, `header_html`,

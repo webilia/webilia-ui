@@ -486,13 +486,13 @@ class Fields
         {
             $raw = $value['border-' . $side] ?? '';
             $side_inputs .= '<div class="wui-sp-border-side">'
-                . '<span class="wui-sp-border-side-label">' . $label . '</span>'
+                . '<span class="wui-sp-border-side-label">' . P::escape($label) . '</span>'
                 . static::input([
                     'name' => $args['name'] . '[border-' . $side . ']',
                     'id' => ($args['id'] ?? '') . '_' . $side,
                     'value' => static::normalize_number_value($raw),
                     'class' => 'wui-sp-border-input',
-                    'placeholder' => P::escape($label),
+                    'placeholder' => $label,
                     'attributes' => ['min' => 0, 'step' => 1],
                     'customizer_link_attr' => $customizer_link_attr,
                 ], 'number')
@@ -719,9 +719,9 @@ class Fields
         ]);
 
         $hidden_id = '<input type="hidden" class="wui-sp-media-id" name="' . P::escape($base_name . '[id]') . '" id="' . P::escape($base_id ? $base_id . '_id' : '') . '" value="' . P::escape($attachment_id) . '"' . $customizer_link_attr . '>';
-        $button = '<button type="button" class="wui-button wui-button--secondary wui-sp-secondary-button wui-sp-media-select" data-target="' . P::escape($args['id'] ?? '') . '">' . static::translate('Select') . '</button>';
+        $button = '<button type="button" class="wui-button wui-button--secondary wui-sp-secondary-button wui-sp-media-select" data-target="' . P::escape($args['id'] ?? '') . '">' . P::escape(static::translate('Select')) . '</button>';
         $remove_class = ($url_value || $attachment_id) ? 'wui-sp-media-remove' : 'wui-sp-media-remove is-hidden';
-        $remove = '<button type="button" class="' . P::escape(trim($remove_class . ' wui-button wui-button--tertiary wui-sp-text-button')) . '" aria-label="' . static::translate('Remove media') . '" title="' . static::translate('Remove') . '"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>';
+        $remove = '<button type="button" class="' . P::escape(trim($remove_class . ' wui-button wui-button--tertiary wui-sp-text-button')) . '" aria-label="' . P::escape(static::translate('Remove media')) . '" title="' . P::escape(static::translate('Remove')) . '"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>';
         $rows['input'] = '<div class="wui-sp-media-input-group">' . $input . $hidden_id . $button . $remove . '</div>';
 
         return static::wrap_group_with_keys('wui-sp-field-group wui-sp-media wui-sp-field-type-media', $rows, 'wui-sp-field-row', 'wui-sp-media-');
@@ -752,19 +752,19 @@ class Fields
             $thumb = static::attachment_image_url($attachment_id, 'thumbnail');
             if (!$thumb) $thumb = static::attachment_url($attachment_id) ?: '';
 
-            $preview = $thumb ? '<img src="' . P::url($thumb) . '" alt="">' : '<span class="wui-sp-gallery-missing">' . static::translate('Missing') . '</span>';
+            $preview = $thumb ? '<img src="' . P::url($thumb) . '" alt="">' : '<span class="wui-sp-gallery-missing">' . P::escape(static::translate('Missing')) . '</span>';
             $items .= '<li data-id="' . P::escape($attachment_id) . '">' . $preview
-                . '<button type="button" class="wui-sp-gallery-remove" aria-label="' . static::translate('Remove image') . '" title="' . static::translate('Remove') . '"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>'
+                . '<button type="button" class="wui-sp-gallery-remove" aria-label="' . P::escape(static::translate('Remove image')) . '" title="' . P::escape(static::translate('Remove')) . '"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>'
                 . '</li>';
         }
 
         $input_id = $args['id'] ?? '';
         $input = '<input type="hidden" class="wui-sp-gallery-input" name="' . P::escape($args['name']) . '" id="' . P::escape($input_id) . '" value="' . P::escape(implode(',', $ids)) . '"' . $customizer_link_attr . '>';
         $list = '<ul class="wui-sp-gallery-items">' . $items . '</ul>';
-        $empty = '<p class="wui-sp-gallery-empty">' . static::translate('No images selected.') . '</p>';
+        $empty = '<p class="wui-sp-gallery-empty">' . P::escape(static::translate('No images selected.')) . '</p>';
         $buttons = '<div class="wui-sp-gallery-actions">'
-            . '<button type="button" class="wui-button wui-button--secondary wui-sp-secondary-button wui-sp-gallery-select">' . static::translate('Add Images') . '</button>'
-            . '<button type="button" class="wui-button wui-button--tertiary wui-sp-text-button wui-sp-gallery-clear">' . static::translate('Clear') . '</button>'
+            . '<button type="button" class="wui-button wui-button--secondary wui-sp-secondary-button wui-sp-gallery-select">' . P::escape(static::translate('Add Images')) . '</button>'
+            . '<button type="button" class="wui-button wui-button--tertiary wui-sp-text-button wui-sp-gallery-clear">' . P::escape(static::translate('Clear')) . '</button>'
             . '</div>';
 
         return '<div class="wui-sp-gallery wui-sp-field-type-gallery">' . $list . $empty . $buttons . $input . '</div>';
@@ -811,7 +811,7 @@ class Fields
         elseif ($address !== '') $query = $address;
 
         $src = $query ? 'https://maps.google.com/maps?q=' . rawurlencode($query) . '&z=14&output=embed' : '';
-        $iframe_attrs = ' loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="' . static::translate('Map preview') . '"';
+        $iframe_attrs = ' loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="' . P::escape(static::translate('Map preview')) . '"';
         if ($src) $iframe_attrs = ' src="' . P::url($src) . '"' . $iframe_attrs;
 
         $preview = '<div class="wui-sp-google-map-preview"' . ($src ? '' : ' data-empty="1"') . '>'
@@ -874,10 +874,10 @@ class Fields
         $filename = $option_name ? $option_name . '.json' : 'settings.json';
 
         $rows = [
-            'export' => '<label class="wui-sp-field-label">' . static::translate('Export') . '</label>'
+            'export' => '<label class="wui-sp-field-label">' . P::escape(static::translate('Export')) . '</label>'
                 . '<div class="wui-sp-import-export-actions">'
                 . '<button type="button" class="wui-button wui-button--secondary wui-sp-secondary-button wui-sp-export-json" data-export-target="' . P::escape($export_id) . '" data-export-filename="' . P::escape($filename) . '">'
-                . static::translate('Export JSON') . '</button>'
+                . P::escape(static::translate('Export JSON')) . '</button>'
                 . '</div>'
                 . static::textarea([
                     'name' => $args['name'] . '[export]',
@@ -887,11 +887,11 @@ class Fields
                     'rows' => 8,
                     'attributes' => ['readonly' => 'readonly'],
                 ]),
-            'import' => '<label class="wui-sp-field-label">' . static::translate('Import') . '</label>'
+            'import' => '<label class="wui-sp-field-label">' . P::escape(static::translate('Import')) . '</label>'
                 . '<div class="wui-sp-import-export-actions">'
                 . '<input type="file" class="wui-sp-import-file" id="' . P::escape($file_id) . '" accept="application/json">'
                 . '<button type="button" class="wui-button wui-button--secondary wui-sp-secondary-button wui-sp-import-file-button" data-file-target="' . P::escape($file_id) . '">'
-                . static::translate('Choose JSON File') . '</button>'
+                . P::escape(static::translate('Choose JSON File')) . '</button>'
                 . '</div>'
                 . static::textarea([
                     'name' => $args['name'] . '[import]',
@@ -1077,8 +1077,8 @@ class Fields
         $data_labels = $field_labels;
 
         $items = '<div class="wui-sp-repeater-items"></div>';
-        $actions = '<div class="wui-sp-repeater-actions"><button type="button" class="wui-button wui-button--secondary wui-sp-secondary-button wui-sp-repeater-add">' . static::translate('Add Item') . '</button></div>';
-        $textarea = '<textarea class="wui-sp-repeater" name="' . P::escape($args['name']) . '" id="' . P::escape($args['id'] ?? '') . '" rows="' . P::escape($rows) . '" placeholder="' . static::translate('JSON array') . '"' . $customizer_link_attr . '>' . P::escape(json_encode($value)) . '</textarea>';
+        $actions = '<div class="wui-sp-repeater-actions"><button type="button" class="wui-button wui-button--secondary wui-sp-secondary-button wui-sp-repeater-add">' . P::escape(static::translate('Add Item')) . '</button></div>';
+        $textarea = '<textarea class="wui-sp-repeater" name="' . P::escape($args['name']) . '" id="' . P::escape($args['id'] ?? '') . '" rows="' . P::escape($rows) . '" placeholder="' . P::escape(static::translate('JSON array')) . '"' . $customizer_link_attr . '>' . P::escape(json_encode($value)) . '</textarea>';
 
         return '<div class="wui-sp-repeater-wrapper" data-fields="' . P::escape(json_encode($data_fields)) . '" data-labels="' . P::escape(json_encode($data_labels)) . '">' . $items . $actions . $textarea . '</div>';
     }
@@ -1416,7 +1416,7 @@ class Fields
         return static::select($args);
     }
     /** Labels are plain text; callers may override this method for localization. */
-    protected static function translate(string $text): string { return P::escape($text); }
+    protected static function translate(string $text): string { return $text; }
     /** HTML in info/raw/content/section definitions is explicitly trusted caller markup. */
     protected static function trusted_html($html): string { return (string) $html; }
     protected static function attachment_url($id): string { return ''; }

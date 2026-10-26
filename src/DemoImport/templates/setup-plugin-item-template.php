@@ -10,7 +10,7 @@ use Webilia\UI\Support\Presentation as P;
         <span class="wui-di__setup-plugin-check">
             <label class="wui-di-switch">
                 <input type="hidden" name="wdi_plugin_toggle" value="0">
-                <input type="checkbox" id="wui-di-plugin-toggle" name="wdi_plugin_toggle" value="1">
+                <input type="checkbox" name="wdi_plugin_toggle" value="1">
                 <span class="wui-di-slider"></span>
             </label>
         </span>

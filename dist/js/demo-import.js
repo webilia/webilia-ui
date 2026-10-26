@@ -26,6 +26,7 @@ var __wuiModule = (() => {
     init: () => init
   });
   var initialized = /* @__PURE__ */ new WeakSet();
+  var pluginControlId = 0;
   function init(root, options = {}) {
     if (!root || initialized.has(root)) return;
     const jq = options.jquery;
@@ -195,7 +196,7 @@ var __wuiModule = (() => {
       const checked = required ? true : !!plugin.selected;
       const disabled = required;
       const status = (plugin.status || "unknown").toString();
-      $item.find('.wui-di__setup-plugin-check input[type="checkbox"]').attr("data-index", index).prop("checked", checked).prop("disabled", disabled);
+      $item.find('.wui-di__setup-plugin-check input[type="checkbox"]').attr("data-index", index).attr("id", "wui-di-plugin-toggle-" + ++pluginControlId).attr("aria-label", plugin.name || t("plugin_fallback_name")).prop("checked", checked).prop("disabled", disabled);
       $item.find(".wui-di__setup-plugin-name").text(plugin.name || t("plugin_fallback_name"));
       $item.find(".wui-di__setup-plugin-type").text(required ? t("plugin_type_required") : t("plugin_type_recommended")).addClass(required ? "is-required wui-di-badge wui-di-error" : "is-recommended wui-di-badge wui-di-info");
       const statusMeta = pluginStatusMeta(status);

@@ -6,6 +6,11 @@ const baseURL = process.env.PARITY_BASE_URL || 'http://127.0.0.1:8877';
     try {
         const page = await browser.newPage({viewport:{width:1280,height:900}});
         page.setDefaultTimeout(6000);
+        async function visibleFocus(locator) {
+            await page.keyboard.press('Tab');
+            await locator.focus();
+            assert.equal(await locator.evaluate(el => getComputedStyle(el).outlineStyle !== 'none' && parseFloat(getComputedStyle(el).outlineWidth) > 0), true);
+        }
         const failures = [];
         page.on('pageerror', error => failures.push(error.message));
         page.on('response', response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
@@ -19,6 +24,9 @@ const baseURL = process.env.PARITY_BASE_URL || 'http://127.0.0.1:8877';
             assert.equal(await page.evaluate(() => document.activeElement.matches('.wui-sp-panel-nav a') && getComputedStyle(document.activeElement).outlineStyle !== 'none' && parseFloat(getComputedStyle(document.activeElement).outlineWidth) > 0), true);
             await page.locator('.wui-di-nav-tab-wrapper > li > a').first().focus();
             assert.equal(await page.locator('.wui-di-nav-tab-wrapper > li > a').first().evaluate(el => getComputedStyle(el).outlineStyle !== 'none' && parseFloat(getComputedStyle(el).outlineWidth) > 0), true);
+            for (const selector of ['.wui-sp-action-save', '.wui-sp-action-reset-all', '.wui-sp-action-reset-section-icon']) {
+                await visibleFocus(page.locator(selector).first());
+            }
             await page.locator('#title').fill('Saved shape');
             await page.locator('.wui-sp-repeater-add').click();
             assert.equal(await page.locator('.wui-sp-repeater-item').count(),2);
@@ -37,10 +45,14 @@ const baseURL = process.env.PARITY_BASE_URL || 'http://127.0.0.1:8877';
             await page.locator('.js-wui-sp-demo-search').fill('Business');
             assert.equal(await page.locator('.js-wui-sp-demo-item:visible').count(),1);
             await page.locator('.js-wui-sp-demo-item:visible').hover();
+            await visibleFocus(page.locator('.js-wui-di-import-button:visible'));
             await page.locator('.js-wui-di-import-button:visible').click();
+            await visibleFocus(page.locator('.js-wui-di-setup-continue'));
             await page.locator('.js-wui-di-setup-continue').click();
             await page.locator('.js-wui-di-page[data-page-state="done"]').waitFor();
             assert.equal(await page.locator('.js-wui-di-page').getAttribute('data-requests'),'3');
+            await visibleFocus(page.locator('.js-wui-di-visit-site'));
+            await visibleFocus(page.locator('.js-wui-di-guide-link'));
             await page.locator('#enabled').focus();
             await page.keyboard.press('Space');
             await page.waitForTimeout(450);
@@ -56,6 +68,21 @@ const baseURL = process.env.PARITY_BASE_URL || 'http://127.0.0.1:8877';
         await page.locator('.js-wui-di-setup-continue').click();
         await page.getByText('Fixture import failure').first().waitFor();
         assert.equal(await page.locator('.js-wui-di-content-restart').isEnabled(),true);
+        await visibleFocus(page.locator('.js-wui-di-content-restart'));
+        await page.addStyleTag({url:`${baseURL}/dist/wordpress/css/settings-customizer.css`});
+        await page.evaluate(() => {
+            const fixture=document.createElement('div');
+            fixture.id='customizer-keyboard-fixture';
+            fixture.innerHTML='<button id="before-child">Before</button><div class="wui-sp-customizer-child-hidden"><button id="hidden-child">Child</button></div><button id="after-child">After</button>';
+            document.body.append(fixture);
+        });
+        await page.locator('#before-child').focus();
+        await page.keyboard.press('Tab');
+        assert.equal(await page.locator('#after-child').evaluate(el=>el===document.activeElement),true);
+        await page.locator('.wui-sp-customizer-child-hidden').evaluate(el=>el.classList.remove('wui-sp-customizer-child-hidden'));
+        await page.locator('#before-child').focus();
+        await page.keyboard.press('Tab');
+        assert.equal(await page.locator('#hidden-child').evaluate(el=>el===document.activeElement),true);
         assert.deepEqual(failures,[]);
         console.log('Theme-tools browser checks passed.');
     } finally { await browser.close(); }

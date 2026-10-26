@@ -240,3 +240,85 @@ test('localized fallback demo titles are escaped exactly once', async t => {
     assert.equal(dom.window.document.querySelector('h1').textContent, "L'importateur & démo");
     assert.equal(html.includes('&amp;amp;'), false);
 });
+
+
+test('theme changes clear omitted variables and never parse swatch values as markup', async t => {
+    const themes = { light:{label:'Light', vars:{'--webilia-panel-bg':'#ffffff','--webilia-panel-accent-2':'#ff0000'}}, dark:{label:'Dark',vars:{'--webilia-panel-bg':'#111111'}}, none:{label:'None'}, malicious:{label:'Unsafe',vars:{'--webilia-panel-accent':'red\"></span><img src=x onerror=alert(1)>'}} };
+    const { w, document } = await settings(t, '<div class="wui-sp-panel"><div class="wui-sp-panel-theme-control" data-panel-themes=\'' + JSON.stringify(themes).replace(/'/g,'&#39;') + '\'>' + Object.keys(themes).map(key => `<input type="radio" name="skin" value="${key}" ${key === 'light' ? 'checked' : ''}><span class="wui-sp-panel-theme-preview" data-theme-key="${key}"></span>`).join('') + '</div></div>');
+    const panel = document.querySelector('.wui-sp-panel');
+    assert.equal(panel.style.getPropertyValue('--webilia-panel-accent-2'), '#ff0000');
+    function choose(value) { const input = document.querySelector(`[value="${value}"]`); input.checked = true; input.dispatchEvent(new w.Event('change',{bubbles:true})); }
+    choose('dark');
+    assert.equal(panel.style.getPropertyValue('--webilia-panel-bg'),'#111111');
+    assert.equal(panel.style.getPropertyValue('--webilia-panel-accent-2'),'');
+    choose('none');
+    assert.equal(panel.style.getPropertyValue('--webilia-panel-bg'),'');
+    assert.equal(document.querySelector('[data-theme-key="malicious"]').children.length,1);
+    assert.equal(document.querySelector('img, [onerror]'),null);
+});
+
+test('interrupted conditional hides cannot hide a newly visible field on animation end', async t => {
+    const { w, document } = await settings(t, '<div class="wui-sp-panel"><div class="wui-sp-field" data-field-id="enabled"><input id="enabled" type="checkbox" checked></div><div class="wui-sp-panel-field-row"><div class="wui-sp-field" data-required=\'["enabled","=",1]\'><input name="dependent"></div></div></div>');
+    w.matchMedia = () => ({matches:false});
+    const input = document.getElementById('enabled');
+    const field = document.querySelector('[data-required]'), row = field.parentElement;
+    function set(value) { input.checked = value; input.dispatchEvent(new w.Event('change',{bubbles:true})); }
+    function animationEnd(node) { node.dispatchEvent(new w.Event('animationend',{bubbles:true})); }
+    set(false);
+    assert.equal(field.classList.contains('is-hiding'),true);
+    set(true);
+    animationEnd(field); animationEnd(row);
+    assert.equal(field.classList.contains('is-hidden'),false);
+    assert.equal(row.classList.contains('is-hidden'),false);
+    set(false); animationEnd(field); animationEnd(row);
+    assert.equal(field.classList.contains('is-hidden'),true);
+    set(true); animationEnd(field); animationEnd(row);
+    assert.equal(field.classList.contains('is-hidden'),false);
+    assert.equal(row.classList.contains('is-hidden'),false);
+});
+
+test('typography input origins inherit master color changes and preserve explicit overrides', async t => {
+    const html = renderPHP("\\Webilia\\UI\\SettingsPanel\\Fields::typography(['name'=>'theme[font]','id'=>'font','color_origin'=>'accent','value'=>['color'=>'#112233']])");
+    const { w, document } = await settings(t, '<div class="wui-sp-panel"><div class="wui-sp-field" data-field-id="accent"><input class="wui-sp-colorpicker" value="#112233"></div><div class="wui-sp-field" data-field-id="font" data-wui-sp-color-origin="accent">' + html + '</div></div>');
+    const master = document.querySelector('[data-field-id="accent"] input'), linked = document.querySelector('#font_color');
+    let changes = 0;
+    linked.addEventListener('change',()=>changes++);
+    master.value='#445566'; master.dispatchEvent(new w.Event('input',{bubbles:true}));
+    assert.equal(linked.value,'#445566'); assert.equal(changes,1);
+    linked.value='#ffffff'; master.value='#778899'; master.dispatchEvent(new w.Event('change',{bubbles:true}));
+    assert.equal(linked.value,'#ffffff');
+    // Input-only metadata as emitted by the standalone renderer.
+    linked.closest('.wui-sp-field').removeAttribute('data-wui-sp-color-origin');
+    const inserted = document.createElement('div'); inserted.innerHTML = html.replaceAll('font_color','inserted_color');
+    document.querySelector('.wui-sp-panel').append(inserted);
+    w.WebiliaUI.settingsPanel.create().app.initContext(inserted);
+    const added = inserted.querySelector('.wui-sp-colorpicker'); added.value='';
+    master.value='#aabbcc'; master.dispatchEvent(new w.Event('change',{bubbles:true}));
+    assert.equal(added.value,'#aabbcc');
+});
+
+test('repeated invalid exports reuse a single scoped toast root', async t => {
+    const html = renderPHP("\\Webilia\\UI\\SettingsPanel\\Fields::import_export(['name'=>'theme[tools]','id'=>'tools','value'=>'invalid'])");
+    const { w, document } = await settings(t, html);
+    const roots = [];
+    w.WebiliaUI.toast = { show(message, options) { roots.push(options.root); } };
+    document.querySelector('.wui-sp-export-json').click();
+    document.querySelector('.wui-sp-export-json').click();
+    assert.equal(roots.length,2);
+    assert.equal(roots[0],roots[1]);
+    assert.equal(document.querySelectorAll('[data-wui-sp-settings-toast-root]').length,1);
+});
+
+test('plugin switches have unique IDs and names across setup renders', async t => {
+    const html = renderPHP("\\Webilia\\UI\\DemoImport\\Screen::render(['ajax_url'=>'/mock','ajax_nonce'=>'nonce','demos'=>[['key'=>'starter','import_file_name'=>'Starter']],'plugins_by_demo'=>[[['slug'=>'one','name'=>'First plugin','required'=>false],['slug'=>'two','name'=>'Second plugin','required'=>false]]]])");
+    const { $, el } = await importer(t,html,()=>({}));
+    $(el).find('.js-wui-di-import-form').trigger('submit');
+    const inputs = [...el.querySelectorAll('.js-wui-di-setup-plugins input[type="checkbox"]')];
+    assert.equal(inputs.length,2);
+    assert.equal(new Set(inputs.map(input=>input.id)).size,2);
+    assert.deepEqual(inputs.map(input=>input.getAttribute('aria-label')),['First plugin','Second plugin']);
+    const ids = inputs.map(input=>input.id);
+    $(el).find('.js-wui-di-setup-back').trigger('click');
+    $(el).find('.js-wui-di-import-form').trigger('submit');
+    assert.equal([...el.querySelectorAll('.js-wui-di-setup-plugins input[type="checkbox"]')].some(input=>ids.includes(input.id)),false);
+});

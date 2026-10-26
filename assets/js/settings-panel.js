@@ -61,7 +61,7 @@ export function create(options = {}) {
         {
             root = document.createElement('div');
             root.className = 'wui wui-sp-settings-ui';
-            root.dataset.webiliaSettingsToastRoot = '';
+            root.setAttribute('data-wui-sp-settings-toast-root', '');
             document.body.append(root);
         }
 
@@ -612,8 +612,10 @@ export function create(options = {}) {
                 el.classList.add('is-hidden');
                 el.classList.remove('is-hiding');
                 el.removeEventListener('animationend', onEnd);
+                el._wuiHideHandler = null;
             }
 
+            el._wuiHideHandler = onEnd;
             el.addEventListener('animationend', onEnd);
         }
 
@@ -624,6 +626,10 @@ export function create(options = {}) {
             const wasHidden = el.classList.contains('is-hidden');
 
             if (shouldShow) {
+                if (el._wuiHideHandler) {
+                    el.removeEventListener('animationend', el._wuiHideHandler);
+                    el._wuiHideHandler = null;
+                }
                 el.classList.remove('is-hidden');
                 el.classList.remove('is-hiding');
                 if (wasHidden && !isInitial) triggerRevealAnimation(el);
@@ -770,7 +776,10 @@ export function create(options = {}) {
         }
 
         function collectOrigins(root) {
-            Utils.qsa('.wui-sp-field[data-wui-sp-color-origin]', root).forEach((field) => {
+            const selector = '.wui-sp-field[data-wui-sp-color-origin], input[data-wui-sp-color-origin]';
+            const fields = Utils.qsa(selector, root);
+            if (root.matches && root.matches(selector)) fields.unshift(root);
+            fields.forEach((field) => {
                 const origin = field.getAttribute('data-wui-sp-color-origin') || '';
                 if (origin === '') return;
                 addOrigin(origin, field);
@@ -779,6 +788,7 @@ export function create(options = {}) {
 
         function findColorInput(field) {
             if (!field) return null;
+            if (field.matches('input.wui-sp-colorpicker, input.wui-sp-colorpicker-rgba')) return field;
             return field.querySelector('input.wui-sp-colorpicker, input.wui-sp-colorpicker-rgba');
         }
 
@@ -824,10 +834,13 @@ export function create(options = {}) {
 
             const previousValue = originValueMap.has(masterId) ? originValueMap.get(masterId) : (target.value || '');
             const value = target.value || '';
+            const updated = new Set();
+            originValueMap.set(masterId, value);
             linkedFields.forEach((linkedField) => {
                 if (!linkedField || linkedField === field) return;
                 const linkedInput = findColorInput(linkedField);
-                if (!linkedInput) return;
+                if (!linkedInput || linkedInput === target || updated.has(linkedInput)) return;
+                updated.add(linkedInput);
                 const linkedValue = linkedInput.value || '';
                 if (linkedValue !== '' && linkedValue !== previousValue) return;
                 setColorValue(linkedInput, value);
@@ -1616,8 +1629,13 @@ export function create(options = {}) {
             if (!panel) return;
 
             const themes = parsePanelThemes(wrapper);
-            if (!themes || !themes[themeKey] || !themes[themeKey].vars) return;
-            const vars = themes[themeKey].vars;
+            if (!themes || !themes[themeKey]) return;
+            const vars = themes[themeKey].vars || {};
+            const keys = new Set();
+            Object.values(themes).forEach(theme => {
+                Object.keys(theme.vars || {}).forEach(key => keys.add(key));
+            });
+            keys.forEach(key => panel.style.removeProperty(key));
 
             Object.keys(vars).forEach(function (key) {
                 panel.style.setProperty(key, String(vars[key]));
@@ -1629,15 +1647,15 @@ export function create(options = {}) {
 
             const vars = theme.vars;
             const keys = ['--webilia-panel-bg', '--webilia-panel-card', '--webilia-panel-border', '--webilia-panel-accent', '--webilia-panel-accent-2'];
-            const items = keys
-            .map(function (key) {
-                const value = vars[key] || '';
-                if (!value) return '';
-                return '<span class="wui-sp-panel-theme-swatch" style="background:' + value + '"></span>';
-            })
-            .join('');
-
-            preview.innerHTML = items || '';
+            preview.replaceChildren();
+            keys.forEach(key => {
+                const value = vars[key];
+                if (!value) return;
+                const swatch = document.createElement('span');
+                swatch.className = 'wui-sp-panel-theme-swatch';
+                swatch.style.background = String(value);
+                preview.append(swatch);
+            });
         }
 
         function initPanelThemes(app) {
