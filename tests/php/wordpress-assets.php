@@ -64,3 +64,11 @@ $metadata = json_decode(file_get_contents(dirname(__DIR__, 2) . '/package.json')
 check($metadata['version'] === Version::VALUE, 'Build and PHP release versions must match.');
 check($scripts['webilia-ui-v1-modal']['version'] !== '1.4.0', 'Changed assets must not reuse the version already shipped in v1.3.0.');
 check($scripts['webilia-ui-v1-modal']['version'] === Version::VALUE && $styles['webilia-ui-v1-header']['version'] === Version::VALUE, 'Shared scripts/styles must use the current release cache version.');
+
+Assets::enqueue(['settings-panel'], 'https://example.com/one/');
+foreach (['settings-fontawesome' => 'font-awesome/css/font-awesome.min.css', 'settings-elusive' => 'elusive-icons/css/elusive-icons.min.css'] as $name => $path) {
+    $handle = 'webilia-ui-v1-' . $name;
+    check($styles[$handle]['source'] === 'https://example.com/one/dist/vendor/settings-panel/' . $path, 'Settings icon stylesheet URL missing.');
+    check(in_array($handle, $styles['webilia-ui-v1-settings-panel']['deps'], true), 'Settings panel must depend on its icon stylesheet.');
+}
+check(!isset($scripts['webilia-wp-settings-panel']), 'Generic settings loading must not initialize WordPress adapters.');

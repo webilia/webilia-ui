@@ -1,6 +1,6 @@
 # Development and release
 
-The source of truth is `src/`, `assets/scss/`, and `assets/js/`. `npm run build` compiles one CSS file per component and independent browser scripts into `dist/`. Commit generated output and icon font files with source changes. Composer consumers require no build step.
+The source of truth is `src/`, `assets/scss/`, and `assets/js/`, and `assets/wordpress/`. `npm run build` compiles one CSS file per component and independent browser scripts into `dist/`. The build also copies WordPress adapter CSS and compiles adapter JS into `dist/wordpress/`; these modules load only through explicit WP initialization. Commit generated output and icon font files with source changes. Composer consumers require no build step.
 
 Run `npm ci`, `npm run check`, and `composer validate --strict`. The PHP scripts test WordPress-free rendering and the opt-in WordPress adapters; Node tests cover modal, busy state, toast, icon assets, and CSS scoping. CI runs PHP checks on 7.4 and 8.4 and verifies that `dist/` matches source.
 

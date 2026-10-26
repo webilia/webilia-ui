@@ -66,8 +66,16 @@ Optional templates are `title.php`, `intro.php`, `progress-template.php`,
 Load `settings-panel` or `demo-import` through `WordPress\Assets::enqueue()` or their corresponding
 `dist/css/` and `dist/js/` files. The WordPress adapter resolves existing forms/buttons/surfaces/icons
 dependencies. `settings-customizer` contains only shared appearance for Customizer controls.
-Runtime WordPress dependencies are enqueued by WP. Component source is under `assets/`; compiled
-output and required images/fonts ship under `dist/`.
+The settings-panel registry also loads its bundled Font Awesome and Elusive styles. Standalone
+non-WordPress consumers should load those styles from `dist/vendor/settings-panel/` too.
+Component source is under `assets/`; compiled output and required images/fonts ship under `dist/`.
+
+WordPress-specific browser adapters also ship in this UI package, separately under
+`assets/wordpress/{css,js}/` (source) and `dist/wordpress/{css,js}/` (distribution). They cover
+settings-panel, settings-customizer and demo-import. These are opt-in: loading a generic UI module
+does not load WordPress adapters. `webilia/wp:^1.2` supplies the PHP enqueueing, native WordPress
+dependencies, localized configuration, permissions and request handling. It loads the adapters
+from the explicit UI package URL; consumers do not copy browser assets into the WP package.
 
 ```js
 const runtime = WebiliaUI.settingsPanel.create({

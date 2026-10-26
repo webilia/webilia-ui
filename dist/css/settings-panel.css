@@ -2020,3 +2020,8 @@
     flex-wrap: wrap;
   }
 }
+.wui.wui-sp-root .wui-sp-panel-nav a:focus-visible,
+.wui.wui-sp-root .wui-sp-nav-toggle:focus-visible {
+  outline: 2px solid var(--webilia-panel-accent, #2271b1);
+  outline-offset: 2px;
+}

@@ -150,3 +150,93 @@ for (const failure of ['plugin', 'content']) test(`retry after ${failure} failur
     assert.deepEqual(installed, failure === 'plugin' ? ['first', 'second', 'second'] : ['first', 'second']);
     assert.equal(el.dataset.pageState, 'done');
 });
+
+
+test('top navigation separates parent navigation from its submenu toggle and updates headings', async t => {
+    const html = renderPHP("\\Webilia\\UI\\SettingsPanel\\Layout::render(['panel_attrs'=>'class=\"wui-sp-panel\" data-wui-sp-nav-position=\"top\"','sections'=>['parent'=>['title'=>'Parent & main','has_content'=>true],'child'=>['title'=>'Child','parent_id'=>'parent','has_content'=>true]],'sections_html'=>['parent'=>'Parent content','child'=>'Child content']])");
+    const { w, document } = await settings(t, html, {}, '#wui-sp-section-child');
+    const row = document.querySelector('.wui-sp-nav-row');
+    const link = row.querySelector('a'), toggle = row.querySelector('button');
+    assert.equal(toggle.parentElement, row);
+    assert.equal(link.contains(toggle), false);
+    link.click();
+    w.dispatchEvent(new w.HashChangeEvent('hashchange'));
+    assert.equal(document.querySelector('.wui-sp-panel-section.is-active').dataset.section, 'parent');
+    assert.equal(document.querySelector('.wui-sp-panel-section-title').textContent, 'Parent & main');
+    toggle.click();
+    assert.equal(toggle.getAttribute('aria-expanded'), 'true');
+    assert.equal(document.querySelector('.wui-sp-panel-section.is-active').dataset.section, 'parent');
+});
+
+for (const direction of ['ltr', 'rtl']) test(`tablist supports arrows, Home and End in ${direction}`, async t => {
+    const html = '<div class="wui-sp-panel"><div class="wui-sp-tabbed" data-tab-group="group"><ul role="tablist" style="direction:' + direction + '">' + ['one','two','three'].map(key => `<li class="wui-sp-tabbed-item"><a href="#" role="tab" class="wui-sp-tabbed-link" data-tab="${key}">${key}</a></li>`).join('') + '</ul></div>' + ['one','two','three'].map(key => `<div class="wui-sp-field" data-wui-sp-tab-group="group" data-wui-sp-tab="${key}">${key}</div>`).join('') + '</div>';
+    const { w, document, runtime } = await settings(t, html);
+    runtime.app.initContext(document);
+    const buttons = [...document.querySelectorAll('[role="tab"]')];
+    function key(value) { document.activeElement.dispatchEvent(new w.KeyboardEvent('keydown', { key:value, bubbles:true, cancelable:true })); }
+    buttons[0].focus();
+    key(direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight');
+    assert.equal(document.activeElement, buttons[1]);
+    assert.equal(buttons[1].getAttribute('aria-selected'), 'true');
+    assert.equal(document.querySelector('[data-wui-sp-tab="two"]').classList.contains('is-tab-hidden'), false);
+    key('End'); assert.equal(document.activeElement, buttons[2]);
+    key('Home'); assert.equal(document.activeElement, buttons[0]);
+    key(direction === 'rtl' ? 'ArrowRight' : 'ArrowLeft');
+    assert.equal(document.activeElement, buttons[2]);
+    document.querySelector('[role="tablist"]').setAttribute('aria-orientation', 'vertical');
+    key('ArrowDown'); assert.equal(document.activeElement, buttons[0]);
+    key('ArrowUp'); assert.equal(document.activeElement, buttons[2]);
+    assert.equal(buttons.filter(button => button.tabIndex === 0).length, 1);
+});
+
+test('theme definitions survive attribute escaping and drive initial and changed previews', async t => {
+    const html = renderPHP("\\Webilia\\UI\\SettingsPanel\\Fields::panel_theme(['name'=>'theme[skin]','value'=>'light','themes'=>['light'=>['label'=>\"Light & \\\"bright\\\"\",'vars'=>['--webilia-panel-bg'=>'#ffffff']],'dark'=>['label'=>'Dark','vars'=>['--webilia-panel-bg'=>'#111111']]]])");
+    const { w, document } = await settings(t, '<div class="wui-sp-panel">' + html + '</div>');
+    const control = document.querySelector('.wui-sp-panel-theme-control');
+    assert.equal(JSON.parse(control.dataset.panelThemes).light.label, 'Light & "bright"');
+    assert.equal(control.querySelectorAll('.wui-sp-panel-theme-swatch').length, 2);
+    const panel = document.querySelector('.wui-sp-panel');
+    assert.equal(panel.style.getPropertyValue('--webilia-panel-bg'), '#ffffff');
+    const dark = control.querySelector('[value="dark"]');
+    dark.checked = true;
+    dark.dispatchEvent(new w.Event('change', { bubbles:true }));
+    assert.equal(panel.style.getPropertyValue('--webilia-panel-bg'), '#111111');
+});
+
+test('palette activation updates the submitted value and emits one pair of events', async t => {
+    const html = renderPHP("\\Webilia\\UI\\SettingsPanel\\Fields::color_palette(['name'=>'theme[color]','value'=>'#ffffff','palette'=>['#ffffff','#112233']])");
+    const { document, runtime } = await settings(t, html);
+    runtime.app.initContext(document);
+    const input = document.querySelector('input');
+    const events = [];
+    for (const name of ['input','change']) input.addEventListener(name, () => events.push(name));
+    const swatch = document.querySelector('[data-color="#112233"]');
+    swatch.click();
+    assert.equal(input.value, '#112233');
+    assert.deepEqual(events, ['input','change']);
+    assert.equal(document.querySelectorAll('.wui-sp-color-box-active').length, 1);
+    assert.equal(swatch.getAttribute('aria-pressed'), 'true');
+});
+
+test('sortable adapter initializes once and emits changes with the submitted DOM order', async t => {
+    const html = renderPHP("\\Webilia\\UI\\SettingsPanel\\Fields::sortable(['name'=>'theme[order]','options'=>['first'=>'First','second'=>'Second'],'value'=>['first','second']])");
+    const calls = [];
+    const { w, document, runtime } = await settings(t, '<form>' + html + '</form>', { sortable(list, update) { calls.push({list,update}); } });
+    runtime.app.initContext(document);
+    assert.equal(calls.length, 1);
+    const {list,update} = calls[0];
+    const events = [];
+    for (const name of ['input','change']) list.addEventListener(name, () => events.push(name));
+    list.prepend(list.lastElementChild);
+    update();
+    assert.deepEqual(new w.FormData(document.querySelector('form')).getAll('theme[order][]'), ['second','first']);
+    assert.deepEqual(events, ['input','change']);
+});
+
+test('localized fallback demo titles are escaped exactly once', async t => {
+    const html = renderPHP("\\Webilia\\UI\\DemoImport\\Screen::render(['labels'=>['Demo Importer'=>\"L'importateur & démo\"]], 'title.php')");
+    const dom = new JSDOM(html);
+    t.after(() => dom.window.close());
+    assert.equal(dom.window.document.querySelector('h1').textContent, "L'importateur & démo");
+    assert.equal(html.includes('&amp;amp;'), false);
+});

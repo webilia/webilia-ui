@@ -73,13 +73,13 @@ if (!$is_customizer) $form_attrs = 'method="post" action="' . P::url($props['pos
                                         <?php endif; ?>
                                         <span class="wui-sp-nav-label"><?php echo P::escape($label); ?></span>
                                     </span>
+                                    </a>
                                         <?php if ($has_children) : ?>
                                             <button type="button" class="wui-sp-nav-toggle" aria-label="<?php echo P::escape(sprintf($labels['Toggle %s submenu'] ?? 'Toggle %s submenu', $label)); ?>" aria-expanded="false" aria-controls="wui-sp-subnav-<?php echo P::escape($id); ?>">
                                                 <i class="fa fa-plus" aria-hidden="true"></i>
                                                 <i class="fa fa-minus" aria-hidden="true"></i>
                                             </button>
                                         <?php endif; ?>
-                                    </a>
                                 </div>
 
                                 <?php if ($has_children) : ?>

@@ -1710,4 +1710,8 @@ ul.wui-di-sub-tabs li.wui-di-sub-tabs-active a {
     .wui-di .wui-di-demo-importer-wrap .wui-di-settings-group-wrapper { padding-inline: 8px; }
 }
 
+  .wui-di-nav-wrapper .wui-di-nav-tab-wrapper > li > a:focus-visible {
+    outline: 2px solid var(--webilia-panel-accent, #2271b1) !important;
+    outline-offset: 2px;
+  }
 }

@@ -1524,3 +1524,7 @@
     padding-inline: 8px;
   }
 }
+.wui.wui-di-root .wui-di-nav-wrapper .wui-di-nav-tab-wrapper > li > a:focus-visible {
+  outline: 2px solid var(--webilia-panel-accent, #2271b1) !important;
+  outline-offset: 2px;
+}

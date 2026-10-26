@@ -212,6 +212,12 @@ export function create(options = {}) {
 
             if (!matched) return;
 
+            const section = app.sections.find(section => section.dataset.section === id);
+            const panel = section.closest('.wui-sp-panel');
+            if (panel) Utils.qsa('.wui-sp-panel-section-title', panel).forEach(title => {
+                title.textContent = section.getAttribute('data-section-title') || '';
+            });
+
             document.dispatchEvent(new CustomEvent('wui-sp:section-change', {
                 detail: { sectionId: id }
             }));
@@ -296,7 +302,7 @@ export function create(options = {}) {
                 const hasChildren = item && item.querySelector(':scope > .wui-sp-subnav');
                 const isChildLink = !!link.closest('.wui-sp-subnav');
 
-                if (isTopNav(app) && hasChildren && !isChildLink) {
+                if (isTopNav(app) && hasChildren && !isChildLink && item.dataset.hasContent === '0') {
                     e.preventDefault();
                     const isOpen = item.classList.contains('is-open');
                     closeAll(app);
@@ -860,7 +866,8 @@ export function create(options = {}) {
                 if (!group) return;
 
                 const buttons = wrapper.querySelectorAll('.wui-sp-tabbed-link');
-                if (!buttons.length) return;
+                if (!buttons.length || wrapper.dataset.wuiTabsReady) return;
+                wrapper.dataset.wuiTabsReady = '1';
 
                 function setActiveTab(tabKey) {
                     if (!tabKey) return;
@@ -929,6 +936,23 @@ export function create(options = {}) {
                         event.preventDefault();
                         setActiveTab(button.getAttribute('data-tab') || '');
                     });
+                    button.addEventListener('keydown', function (event) {
+                        const tablist = button.closest('[role="tablist"]');
+                        const vertical = tablist && tablist.getAttribute('aria-orientation') === 'vertical';
+                        const rtl = window.getComputedStyle(tablist || wrapper).direction === 'rtl';
+                        const previous = vertical ? 'ArrowUp' : (rtl ? 'ArrowRight' : 'ArrowLeft');
+                        const next = vertical ? 'ArrowDown' : (rtl ? 'ArrowLeft' : 'ArrowRight');
+                        let index = Array.prototype.indexOf.call(buttons, button);
+                        if (event.key === 'Home') index = 0;
+                        else if (event.key === 'End') index = buttons.length - 1;
+                        else if (event.key === previous) index = (index - 1 + buttons.length) % buttons.length;
+                        else if (event.key === next) index = (index + 1) % buttons.length;
+                        else return;
+                        event.preventDefault();
+                        const target = buttons[index];
+                        setActiveTab(target.getAttribute('data-tab') || '');
+                        target.focus();
+                    });
                 });
             });
         }
@@ -982,6 +1006,50 @@ export function create(options = {}) {
     // Module: Sortables (works in both panel + customizer)
     // ---------------------------
 
+
+    const SortablesModule = {
+        name: 'SortablesModule',
+        init(context) {
+            if (!options.sortable) return;
+            const lists = Utils.qsa('.wui-sp-sortable', context);
+            if (context.matches && context.matches('.wui-sp-sortable')) lists.unshift(context);
+            lists.forEach(list => {
+                if (list.dataset.wuiSortableReady) return;
+                list.dataset.wuiSortableReady = '1';
+                options.sortable(list, () => {
+                    const target = list.querySelector('input') || list;
+                    target.dispatchEvent(new Event('input', { bubbles: true }));
+                    target.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            });
+        }
+    };
+
+    const ColorPalettesModule = (function () {
+        let bound = false;
+        return {
+            name: 'ColorPalettesModule',
+            init() {
+                if (bound) return;
+                bound = true;
+                document.addEventListener('click', event => {
+                    const button = event.target.closest('.wui-sp-color-box');
+                    if (!button) return;
+                    const palette = button.closest('.wui-sp-color-palette');
+                    const input = palette && palette.querySelector('input[type="hidden"]');
+                    if (!input) return;
+                    input.value = button.dataset.color || '';
+                    Utils.qsa('.wui-sp-color-box', palette).forEach(item => {
+                        const active = item === button;
+                        item.classList.toggle('wui-sp-color-box-active', active);
+                        item.setAttribute('aria-pressed', String(active));
+                    });
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            }
+        };
+    })();
 
     // ---------------------------
     // Module: Media Fields (panel only)
@@ -1576,7 +1644,7 @@ export function create(options = {}) {
             if (app.isCustomizer) return;
 
             // render previews + apply selected on load
-            Utils.qsa('.wui-sp-field-type-panel_theme', document).forEach((wrapper) => {
+            Utils.qsa('.wui-sp-panel-theme-control', document).forEach((wrapper) => {
                 const themes = parsePanelThemes(wrapper);
 
                 Utils.qsa('.wui-sp-panel-theme-preview', wrapper).forEach((preview) => {
@@ -1598,7 +1666,7 @@ export function create(options = {}) {
                 const input = e.target;
                 if (!input || input.type !== 'radio') return;
 
-                const wrapper = input.closest('.wui-sp-field-type-panel_theme');
+                const wrapper = input.closest('.wui-sp-panel-theme-control');
                 if (!wrapper) return;
 
                 applyPanelTheme(wrapper, input.value);
@@ -2122,6 +2190,8 @@ export function create(options = {}) {
     app.register(ColorInheritanceModule);
     app.register(TabsModule);
     app.register(SlidersModule);
+    app.register(SortablesModule);
+    app.register(ColorPalettesModule);
     app.register(GoogleMapsModule);
     app.register(MediaControlsModule);
     app.register(RepeatersModule);

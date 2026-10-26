@@ -330,7 +330,7 @@ class Fields
         foreach ($palette as $color)
         {
             $active = ($value === $color) ? ' wui-sp-color-box-active' : '';
-            $items .= '<button type="button" class="wui-sp-color-box' . $active . '" data-color="' . P::escape($color) . '" style="background-color: ' . P::escape($color) . '"></button>';
+            $items .= '<button type="button" class="wui-sp-color-box' . $active . '" aria-label="' . P::escape($color) . '" aria-pressed="' . ($value === $color ? 'true' : 'false') . '" data-color="' . P::escape($color) . '" style="background-color: ' . P::escape($color) . '"></button>';
         }
 
         $input = static::input($args, 'hidden');
@@ -948,7 +948,7 @@ class Fields
         $class = 'wui-sp-panel-choice-grid wui-sp-panel-theme-control wui-sp-field-type-panel-theme';
         if (!empty($args['class'])) $class .= ' ' . $args['class'];
 
-        return '<div class="' . P::escape($class) . '">' . $items . '</div>';
+        return '<div class="' . P::escape($class) . '" data-panel-themes="' . P::escape(json_encode($themes)) . '">' . $items . '</div>';
     }
 
     public static function panel_nav_position($args = [])

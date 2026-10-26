@@ -2263,4 +2263,9 @@ button[type="button"].wui-sp-text-button:disabled
     .wui-sp-action-buttons { flex-wrap: wrap; }
 }
 
+  .wui-sp-panel-nav a:focus-visible,
+  .wui-sp-nav-toggle:focus-visible {
+    outline: 2px solid var(--webilia-panel-accent, #2271b1);
+    outline-offset: 2px;
+  }
 }

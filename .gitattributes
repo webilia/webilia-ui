@@ -1,3 +1,4 @@
 # Bundled upstream assets and generated bundles retain their original whitespace.
 dist/vendor/** -whitespace
 dist/js/*.js -whitespace
+dist/wordpress/js/*.js -whitespace

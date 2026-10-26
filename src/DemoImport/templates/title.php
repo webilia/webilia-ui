@@ -12,7 +12,7 @@ $logo_url = isset($logo_url) ? (string) $logo_url : '';
 
 $title = trim((string) $text);
 if ($title === '') $title = trim((string) $fallback);
-if ($title === '') $title = $translate('Demo Importer');
+if ($title === '') $title = $labels['Demo Importer'] ?? 'Demo Importer';
 ?>
 <div class="wui-di__title-container wui-sp-demo-import-title">
     <?php if ($logo_url !== ''): ?>
