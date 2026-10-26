@@ -8,6 +8,16 @@ use Webilia\UI\Version;
 final class Assets
 {
     private const COMPONENTS = [
+        'settings-panel' => [
+            'style' => 'settings-panel', 'script' => 'settings-panel',
+            'requires' => ['forms', 'buttons', 'surfaces', 'icons'],
+            'vendors' => [
+                'settings-fontawesome' => 'vendor/settings-panel/font-awesome/css/font-awesome.min.css',
+                'settings-elusive' => 'vendor/settings-panel/elusive-icons/css/elusive-icons.min.css',
+            ],
+        ],
+        'settings-customizer' => ['style' => 'settings-customizer'],
+        'demo-import' => ['style' => 'demo-import', 'script' => 'demo-import', 'requires' => ['forms', 'buttons', 'surfaces', 'icons']],
         'announcements' => ['style' => 'announcements', 'script' => 'announcements', 'requires' => ['modal', 'icons', 'badge']],
         'deactivation' => ['style' => 'deactivation', 'script' => 'deactivation', 'requires' => ['modal', 'forms', 'icons']],
         'layout' => ['style' => 'layout'],
@@ -46,7 +56,13 @@ final class Assets
         self::style('tokens', $base);
         foreach (array_keys($selected) as $component) {
             $item = self::COMPONENTS[$component];
-            self::style($item['style'], $base);
+            $vendorHandles = [];
+            foreach ($item['vendors'] ?? [] as $name => $path) {
+                $handle = 'webilia-ui-v1-' . $name;
+                wp_enqueue_style($handle, $base . $path, [], Version::VALUE);
+                $vendorHandles[] = $handle;
+            }
+            self::style($item['style'], $base, $vendorHandles);
             if (isset($item['script'])) {
                 $handle = 'webilia-ui-v1-' . $item['script'];
                 $deps = in_array($item['script'], ['announcements', 'deactivation'], true) ? ['webilia-ui-v1-modal'] : [];
@@ -70,10 +86,11 @@ final class Assets
         $selected[$component] = true;
     }
 
-    private static function style(string $name, string $base): void
+    /** @param string[] $extraDependencies */
+    private static function style(string $name, string $base, array $extraDependencies = []): void
     {
         $handle = 'webilia-ui-v1-' . $name;
-        $deps = $name === 'tokens' ? [] : ['webilia-ui-v1-tokens'];
+        $deps = array_merge($name === 'tokens' ? [] : ['webilia-ui-v1-tokens'], $extraDependencies);
         wp_enqueue_style($handle, $base . 'css/' . $name . '.css', $deps, Version::VALUE);
     }
 }

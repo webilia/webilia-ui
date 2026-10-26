@@ -1,0 +1,120 @@
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const { execFileSync } = require('node:child_process');
+const { resolve } = require('node:path');
+const bootstrap = resolve(__dirname, '../php/bootstrap.php').replace(/'/g, "\\'");
+const choiceFixture = execFileSync('php', ['-r', `require '${bootstrap}'; echo '<div class="wui-sp-field-type-button_set">' . \\Webilia\\UI\\SettingsPanel\\Fields::button_set(['name'=>'theme[choice]','id'=>'choice','value'=>'one','options'=>['one'=>'One','two'=>'Two']]) . '</div><div class="wui-sp-field-type-image_select">' . \\Webilia\\UI\\SettingsPanel\\Fields::image_select(['name'=>'theme[image_choice]','value'=>'one','options'=>['one'=>'Image one','two'=>'Image two']]) . '</div>' . \\Webilia\\UI\\SettingsPanel\\Fields::sortable(['name'=>'theme[order]','options'=>['one'=>'One','two'=>'Two']]);`], {encoding:'utf8'});
+const baseURL = process.env.PARITY_BASE_URL || 'http://127.0.0.1:8877';
+(async () => {
+    const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined });
+    try {
+        const page = await browser.newPage({viewport:{width:1280,height:900}});
+        page.setDefaultTimeout(6000);
+        async function visibleFocus(locator) {
+            await page.keyboard.press('Tab');
+            await locator.focus();
+            assert.equal(await locator.evaluate(el => getComputedStyle(el).outlineStyle !== 'none' && parseFloat(getComputedStyle(el).outlineWidth) > 0), true);
+        }
+        const failures = [];
+        page.on('pageerror', error => failures.push(error.message));
+        page.on('response', response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
+        for (const mobile of [false,true]) {
+            await page.setViewportSize(mobile ? {width:390,height:844} : {width:1280,height:900});
+            await page.emulateMedia({reducedMotion:mobile?'reduce':'no-preference'});
+            await page.goto(`${baseURL}/playground/theme-tools.php${mobile?'?rtl=1':''}`);
+            assert.equal(await page.locator('.wui-sp-panel').evaluate(el => getComputedStyle(el).display),'flex');
+            await page.locator('a[href="#wui-sp-section-general"]').focus();
+            await page.keyboard.press('Tab');
+            assert.equal(await page.evaluate(() => document.activeElement.matches('.wui-sp-panel-nav a') && getComputedStyle(document.activeElement).outlineStyle !== 'none' && parseFloat(getComputedStyle(document.activeElement).outlineWidth) > 0), true);
+            await page.locator('.wui-di-nav-tab-wrapper > li > a').first().focus();
+            assert.equal(await page.locator('.wui-di-nav-tab-wrapper > li > a').first().evaluate(el => getComputedStyle(el).outlineStyle !== 'none' && parseFloat(getComputedStyle(el).outlineWidth) > 0), true);
+            for (const selector of ['.wui-sp-action-save', '.wui-sp-action-reset-all', '.wui-sp-action-reset-section-icon']) {
+                await visibleFocus(page.locator(selector).first());
+            }
+            await page.locator('.wui-sp-panel-form').evaluate((form, html) => {
+                const fixture=document.createElement('div');
+                fixture.id='choice-keyboard-fixture';
+                fixture.innerHTML=html;
+                form.append(fixture);
+                WebiliaUI.settingsPanel.create().app.initContext(fixture);
+            },choiceFixture);
+            const choice=page.locator('#choice-one');
+            await page.keyboard.press('Tab');
+            await choice.focus();
+            assert.equal(await choice.evaluate(el=>getComputedStyle(el.nextElementSibling).outlineStyle !== 'none' && parseFloat(getComputedStyle(el.nextElementSibling).outlineWidth)>0),true);
+            await page.keyboard.press('ArrowRight');
+            assert.equal(await page.locator('#choice-two').evaluate(el=>el===document.activeElement && el.checked && getComputedStyle(el.nextElementSibling).outlineStyle !== 'none'),true);
+            const imageChoice=page.locator('[name="theme[image_choice]"]').first();
+            await imageChoice.focus();
+            assert.equal(await imageChoice.evaluate(el=>getComputedStyle(el).opacity==='0' && getComputedStyle(el.closest('label')).outlineStyle !== 'none'),true);
+            const move=page.locator('.wui-sp-sortable [data-key="one"] [data-direction="down"]');
+            await move.focus();
+            await page.keyboard.press('Enter');
+            assert.deepEqual(await page.locator('.wui-sp-sortable input').evaluateAll(inputs=>inputs.map(input=>input.value)),['two','one']);
+            assert.equal(await move.evaluate(el=>el===document.activeElement),true);
+            await page.keyboard.press('Space');
+            assert.deepEqual(await page.locator('.wui-sp-sortable input').evaluateAll(inputs=>inputs.map(input=>input.value)),['two','one']);
+            await page.locator('.wui-sp-sortable [data-key="one"] [data-direction="up"]').focus();
+            await page.keyboard.press('Space');
+            assert.deepEqual(await page.locator('.wui-sp-sortable input').evaluateAll(inputs=>inputs.map(input=>input.value)),['one','two']);
+            await page.locator('#choice-keyboard-fixture').evaluate(el=>el.remove());
+            await page.locator('#title').fill('Saved shape');
+            await page.locator('.wui-sp-repeater-add').click();
+            assert.equal(await page.locator('.wui-sp-repeater-item').count(),2);
+            await page.locator('.wui-sp-repeater-input').last().fill('Second');
+            assert.deepEqual(JSON.parse(await page.locator('#rows').inputValue()),[{title:'First'},{title:'Second'}]);
+            assert.equal(await page.locator('#legacy').inputValue(),'legacy');
+            await page.locator('a[href="#wui-sp-section-advanced"]').click();
+            await page.locator('.wui-sp-import-export').waitFor({state:'visible'});
+            await page.locator('a[href="#wui-sp-section-general"]').click();
+            const exported = await page.locator('.wui-sp-panel-form').evaluate(el => Object.fromEntries(new FormData(el)));
+            assert.equal(exported['theme[title]'],'Saved shape');
+            assert.equal(exported['theme[font][font-family]'],'Poppins');
+            await page.locator('.js-wui-sp-demo-nav-link').first().focus();
+            await page.keyboard.press('Tab');
+            assert.equal(await page.evaluate(() => document.activeElement.matches('.js-wui-sp-demo-nav-link') && getComputedStyle(document.activeElement).outlineStyle !== 'none' && parseFloat(getComputedStyle(document.activeElement).outlineWidth) > 0), true);
+            await page.locator('.js-wui-sp-demo-search').fill('Business');
+            assert.equal(await page.locator('.js-wui-sp-demo-item:visible').count(),1);
+            await page.locator('.js-wui-sp-demo-item:visible').hover();
+            await visibleFocus(page.locator('.js-wui-di-import-button:visible'));
+            await page.locator('.js-wui-di-import-button:visible').click();
+            await visibleFocus(page.locator('.js-wui-di-setup-continue'));
+            await page.locator('.js-wui-di-setup-continue').click();
+            await page.locator('.js-wui-di-page[data-page-state="done"]').waitFor();
+            assert.equal(await page.locator('.js-wui-di-page').getAttribute('data-requests'),'3');
+            await visibleFocus(page.locator('.js-wui-di-visit-site'));
+            await visibleFocus(page.locator('.js-wui-di-guide-link'));
+            await page.locator('#enabled').focus();
+            await page.keyboard.press('Space');
+            await page.waitForTimeout(450);
+            assert.equal(await page.locator('[data-field-id="title"]').evaluate(el => el.classList.contains('is-hidden')),true);
+            assert.equal(await page.locator('.js-wdi-page').textContent(),'Legacy importer');
+            assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+            await page.screenshot({path:`docs/theme-tools-${mobile?'mobile-rtl':'desktop'}.png`,fullPage:true});
+        }
+        await page.goto(`${baseURL}/playground/theme-tools.php`);
+        await page.locator('.js-wui-di-page').evaluate(el => {el.dataset.fail='1';});
+        await page.locator('.js-wui-sp-demo-item').first().hover();
+        await page.locator('.js-wui-di-import-button').first().click();
+        await page.locator('.js-wui-di-setup-continue').click();
+        await page.getByText('Fixture import failure').first().waitFor();
+        assert.equal(await page.locator('.js-wui-di-content-restart').isEnabled(),true);
+        await visibleFocus(page.locator('.js-wui-di-content-restart'));
+        await page.addStyleTag({url:`${baseURL}/dist/wordpress/css/settings-customizer.css`});
+        await page.evaluate(() => {
+            const fixture=document.createElement('div');
+            fixture.id='customizer-keyboard-fixture';
+            fixture.innerHTML='<button id="before-child">Before</button><div class="wui-sp-customizer-child-hidden"><button id="hidden-child">Child</button></div><button id="after-child">After</button>';
+            document.body.append(fixture);
+        });
+        await page.locator('#before-child').focus();
+        await page.keyboard.press('Tab');
+        assert.equal(await page.locator('#after-child').evaluate(el=>el===document.activeElement),true);
+        await page.locator('.wui-sp-customizer-child-hidden').evaluate(el=>el.classList.remove('wui-sp-customizer-child-hidden'));
+        await page.locator('#before-child').focus();
+        await page.keyboard.press('Tab');
+        assert.equal(await page.locator('#hidden-child').evaluate(el=>el===document.activeElement),true);
+        assert.deepEqual(failures,[]);
+        console.log('Theme-tools browser checks passed.');
+    } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode=1; });

@@ -21,6 +21,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: composer validate --strict
+      - run: composer dump-autoload --optimize --strict-psr
       - run: npm ci
       - run: npm run check
       - run: git diff --exit-code -- dist
