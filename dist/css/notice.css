@@ -12,9 +12,20 @@
 
 .wui .wui-notice .wui-notice__icon {
   align-self: flex-start;
-  flex: 0 0 auto;
-  color: var(--wui-notice-accent);
-  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 28px;
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 50%;
+  color: var(--wui-color-on-primary);
+  background: var(--wui-notice-accent);
+  font-size: 16px;
+}
+
+.wui .wui-notice .wui-notice__icon::before {
+  transform: translateX(1px);
 }
 
 .wui .wui-notice__content {

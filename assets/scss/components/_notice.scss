@@ -1,5 +1,6 @@
 .wui .wui-notice { --wui-notice-accent: var(--wui-color-info); display: flex; align-items: flex-start; gap: var(--wui-space-3); padding: var(--wui-space-3) var(--wui-space-4); border-inline-start: 4px solid var(--wui-notice-accent); border-radius: var(--wui-radius-sm); color: var(--wui-color-text); background: var(--wui-color-info-soft); }
-.wui .wui-notice .wui-notice__icon { align-self: flex-start; flex: 0 0 auto; color: var(--wui-notice-accent); font-size: 20px; }
+.wui .wui-notice .wui-notice__icon { align-self: flex-start; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 28px; inline-size: 28px; block-size: 28px; border-radius: 50%; color: var(--wui-color-on-primary); background: var(--wui-notice-accent); font-size: 16px; }
+.wui .wui-notice .wui-notice__icon::before { transform: translateX(1px); }
 .wui .wui-notice__content { flex: 1; min-inline-size: 0; }
 .wui .wui-notice__dismiss { flex-shrink: 0; }
 .wui .wui-notice--success { --wui-notice-accent: var(--wui-color-success); background: var(--wui-color-success-soft); }
