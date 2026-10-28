@@ -59,7 +59,7 @@ check(isset($styles['webilia-ui-v1-forms'], $styles['webilia-ui-v1-icons'], $sty
 
 echo "WordPress asset checks passed.\n";
 Assets::enqueue(['notice-dismiss'], 'https://example.com/one/');
-check(isset($scripts['webilia-ui-v1-notice'], $styles['webilia-ui-v1-buttons']), 'Dismissible notice dependencies missing.');
+check(isset($scripts['webilia-ui-v1-notice'], $styles['webilia-ui-v1-buttons'], $styles['webilia-ui-v1-icons']), 'Dismissible notice dependencies missing.');
 $metadata = json_decode(file_get_contents(dirname(__DIR__, 2) . '/package.json'), true);
 check($metadata['version'] === Version::VALUE, 'Build and PHP release versions must match.');
 check($scripts['webilia-ui-v1-modal']['version'] !== '1.4.0', 'Changed assets must not reuse the version already shipped in v1.3.0.');

@@ -12,7 +12,7 @@ Load `tokens` and each component stylesheet that appears in a screen. Place ordi
 | Forms | `forms` | — | — |
 | Surfaces | `surfaces` | — | — |
 | Badge | `badge` | — | `Badge::render()` |
-| Notice | `notice` | — | `Notice::render()` |
+| Notice | `notice`, `icons` | — | `Notice::render()` |
 | Spinner/loading | `feedback` | optional `busy` | — |
 | Modal/confirmation | `modal`, `buttons` | `modal` | `Modal::render()` |
 | Icons | `icons` | — | — |
@@ -84,7 +84,7 @@ echo Breadcrumb::render([
 
 `Badge::render(array $props)` accepts `label` and `tone`: `neutral`, `info`, `success`, `warning`, or `danger`.
 
-`Notice::render(array $props)` accepts `message`, optional `detail`, and `tone`: `info`, `success`, `warning`, or `danger`. Warning and danger use an alert live region; other tones use a status live region.
+`Notice::render(array $props)` accepts `message`, optional `detail`, and `tone`: `info`, `success`, `warning`, or `danger`. Its decorative tone icon stays at the start of the first line, including when the notice wraps. Load the icons stylesheet and font with the notice stylesheet. Warning and danger use an alert live region; other tones use a status live region.
 
 `Modal::render(array $props)` requires a unique `id` and accepts `title`, trusted `body_html`, trusted `footer_html`, `size` (`small`, `medium`, `large`), and translated `close_label`. The renderer returns initially hidden markup with dialog semantics. Open it with `data-wui-modal-open="id"` or `WebiliaUI.modal.open('id')`; close with `data-wui-modal-close` or `WebiliaUI.modal.close('id')`.
 
