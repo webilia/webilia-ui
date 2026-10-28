@@ -122,4 +122,7 @@ and Elusive icon assets retain existing field-icon support and notices under
 See `/playground/theme-tools.php` for an executable standalone example with a mock transport.
 `npm run check` includes renderer and DOM tests. `npm run test:browser` covers desktop/mobile RTL,
 reduced motion, keyboard input, form/JSON serialization, navigation and importer success/failure.
-Release `v1.5.0` only after review and merge; WP `v1.2.0` follows it. Phase 2 consumers are unchanged.
+Release `v1.5.1` only after review and merge. It remains compatible with the existing
+WP `v1.2.0`; no new WP release is required for this presentation patch. After the UI
+tag is published, Phase 2 consumers can replace their temporary UI branch aliases
+with the exact `1.5.1` dependency and refresh their UI lock entries before publication.

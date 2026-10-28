@@ -12,7 +12,7 @@ nested focus/scrolling, modal close policy, rich notice dismissal, mobile RTL/re
 and feedback failure/Skip without making remote submissions. They refresh the screenshots
 in `docs/parity-*.png`. CI runs them on both supported PHP versions.
 
-Use the root checkout of `webilia/webilia-ui`, fetch `origin/main`, and branch from that remote ref. Open a PR with checks and playground screenshots. After review and merge, create the annotated `v1.5.0` tag on the merged `main` commit and push the tag. Verify an authenticated Composer VCS consumer can resolve `webilia/ui:^1.4` from that tag. Do not tag an unmerged feature branch.
+Use the root checkout of `webilia/webilia-ui`, fetch `origin/main`, and branch from that remote ref. Open a PR with checks and playground screenshots. After review and merge, create the annotated `v1.5.1` tag on the merged `main` commit and push the tag. Verify an authenticated Composer VCS consumer can resolve the exact `webilia/ui:1.5.1` version from that tag. Do not tag an unmerged feature branch.
 
 The existing `v1.3.0` tag already reports internal 1.4.0. Keep it immutable;
 the historical 1.4.1 release corrected its internal version for fresh asset cache URLs.
@@ -20,6 +20,9 @@ Current releases must match `Version::VALUE`, npm metadata, documentation, and r
 
 The private GitHub repository is the initial Composer distribution channel. Consumers provide GitHub credentials through their local or CI Composer configuration, not a committed `auth.json` or token. Multiple active WordPress plugins are supported when they bundle the same package version. Coordinate package upgrades across products; v1 does not promise mixed-version runtime compatibility.
 
-For the theme-tools release, `Version::VALUE` and npm metadata are `1.5.0`.
-Publish the reviewed, merged UI `v1.5.0` before WP `v1.2.0`. The legacy v1.4.1 history
-above remains historical context; do not move existing tags.
+For the current theme-tools patch, `Version::VALUE` and npm metadata are `1.5.1`.
+Publish the reviewed, merged UI `v1.5.1`, then move companion consumers from their
+temporary branch aliases to the exact `1.5.1` dependency and refresh their UI lock
+entries before publication. The existing WP `v1.2.0` remains compatible and does
+not need a new release for this presentation patch. The legacy v1.4.1 history
+above remains historical context; do not move existing tags, including `v1.5.0`.
