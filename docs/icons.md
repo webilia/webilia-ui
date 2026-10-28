@@ -4,6 +4,8 @@ Load dist/css/icons.css with dist/fonts/webilia-ui-icons.woff2 and webilia-ui-ic
 Each icon uses the classes wui-icon and wui-icon--NAME inside a .wui root.
 Decorative icons need aria-hidden="true"; an icon-only control needs an accessible label.
 
+The font contains 159 icons. `wui-icon--trash` aliases `wui-icon--delete`.
+
 | Icon | Icon | Icon |
 | --- | --- | --- |
 | wui-icon--wrap | wui-icon--wrap-reverse | wui-icon--wizard |
@@ -53,3 +55,10 @@ Decorative icons need aria-hidden="true"; an icon-only control needs an accessib
 | wui-icon--advanced | wui-icon--add-team | wui-icon--add-plus |
 | wui-icon--add-plus-s | wui-icon--add-plus-circle | wui-icon--acf |
 | wui-icon--account |  |  |
+| wui-icon--bookmark-line | wui-icon--bookmark | wui-icon--bookmark-square |
+| wui-icon--bookmark-add | wui-icon--bookmark-block | wui-icon--bookmark-check |
+| wui-icon--calendar-date | wui-icon--calendar-list | wui-icon--calendar-grid |
+| wui-icon--calendar | wui-icon--calendar-add | wui-icon--calendar-block |
+| wui-icon--calendar-clock | wui-icon--circle-arrow-down | wui-icon--circle-arrow-up |
+| wui-icon--database-server | wui-icon--delete | wui-icon--edit-table |
+| wui-icon--license-third-party | wui-icon--money-security | wui-icon--trash |
