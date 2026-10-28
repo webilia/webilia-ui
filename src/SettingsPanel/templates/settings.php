@@ -124,7 +124,11 @@ if (!$is_customizer) $form_attrs = 'method="post" action="' . P::url($props['pos
                             <?php foreach ($sections as $id => $section) : ?>
                                 <?php $has_content = !empty($section['has_content']); ?>
                                 <section class="wui-sp-panel-section" id="wui-sp-section-<?php echo P::escape($id); ?>" data-section="<?php echo P::escape($id); ?>" data-section-title="<?php echo P::escape($section['title'] ?? ''); ?>" data-has-content="<?php echo $has_content ? '1' : '0'; ?>">
-                                    <?php echo $section['description_html'] ?? ''; ?>
+                                    <?php if (trim((string) ($section['description_html'] ?? '')) !== '') : ?>
+                                        <div class="wui-sp-panel-section-description">
+                                            <?php echo $section['description_html']; ?>
+                                        </div>
+                                    <?php endif; ?>
                                     <?php $fields = ($section['fields'] ?? []); ?>
 
                                     <div class="wui-sp-panel-fields">

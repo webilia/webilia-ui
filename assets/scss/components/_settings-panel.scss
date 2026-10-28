@@ -304,14 +304,15 @@
 }
 
 .wui-sp-level-3-menu > li {
-    transition: all 0.2s ease-in-out;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
     margin: 0;
 }
 
 .wui-sp-level-3-menu > li a {
     background-color: transparent !important;
     border: none !important;
-    transition: all 0.2s ease-in-out;
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
     white-space: nowrap;
     line-height: 1.5em;
     font-size: 14px;
@@ -326,7 +327,7 @@
 
 .wui-sp-level-3-menu > li:hover {
     color: var(--webilia-panel-accent);
-    border-bottom: 1px solid var(--webilia-panel-accent);
+    border-bottom-color: var(--webilia-panel-accent);
 }
 
 .wui-sp-level-3-menu > li:hover a {
@@ -335,7 +336,7 @@
 
 .wui-sp-level-3-menu .wui-sp-sub-tabs-active {
     color: var(--webilia-panel-accent);
-    border-bottom: 1px solid var(--webilia-panel-accent);
+    border-bottom-color: var(--webilia-panel-accent);
 }
 
 .wui-sp-level-3-menu .wui-sp-sub-tabs-active a {
@@ -1026,6 +1027,14 @@
     margin: 0;
 }
 
+.wui-sp-panel-section-description {
+    padding: 0 36px;
+}
+
+.wui-sp-panel-section-description .wui-sp-alert {
+    margin-inline: 0;
+}
+
 .wui-sp-section-divider {
     display: grid;
     gap: 8px;
@@ -1348,6 +1357,7 @@ button[type="button"].wui-sp-text-button:disabled
     padding: 0;
     height: 32px;
     background: transparent;
+    accent-color: var(--webilia-panel-accent);
 }
 
 /* Select: custom arrow */
