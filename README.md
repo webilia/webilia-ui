@@ -145,4 +145,10 @@ Open `http://127.0.0.1:8000/playground/`. Build output in `dist/` is committed s
 ## Theme tools (1.5)
 
 See [settings layouts/fields, demo screens and host adapters](docs/theme-tools.md).
-The current release version is `v1.5.0`. WordPress behavior is supplied by `webilia/wp:^1.2`.
+The current release version is `v1.5.1`. WordPress behavior is supplied by `webilia/wp:^1.2`.
+
+### 1.5.1
+
+Settings descriptions use the same horizontal padding as fields. Tab hover/active
+borders reserve a fixed width to prevent layout movement, and range controls use
+the configured panel accent color.
