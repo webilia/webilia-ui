@@ -15,6 +15,8 @@ final class Notice
         $role = in_array($tone, ['warning', 'danger'], true) ? 'alert' : 'status';
         $live = $role === 'alert' ? 'assertive' : 'polite';
         $class = Html::className('wui-notice wui-notice--' . $tone . ' ' . ($props['class'] ?? ''));
+        $icons = ['info' => 'inbox', 'success' => 'checkmark-circle', 'warning' => 'alert', 'danger' => 'alert'];
+        $icon = '<span class="wui-icon wui-icon--' . $icons[$tone] . ' wui-notice__icon" aria-hidden="true"></span>';
         $detail = isset($props['detail']) && $props['detail'] !== ''
             ? '<p class="wui-notice__detail">' . Html::escape($props['detail']) . '</p>'
             : '';
@@ -28,6 +30,6 @@ final class Notice
                 . Html::escape($props['dismiss_label'] ?? 'Dismiss notice') . '"><span aria-hidden="true">&times;</span></button>'
             : '';
         return '<div class="' . Html::escape($class) . '" role="' . $role . '" aria-live="' . $live . '">'
-            . '<div class="wui-notice__content">' . $message . $detail . '</div>' . $dismiss . '</div>';
+            . $icon . '<div class="wui-notice__content">' . $message . $detail . '</div>' . $dismiss . '</div>';
     }
 }

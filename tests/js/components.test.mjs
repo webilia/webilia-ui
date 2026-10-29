@@ -123,12 +123,18 @@ test('toast without a root uses a scoped portal and loading can become timed suc
   dom.window.close();
 });
 
-test('icon stylesheet maps all 139 glyphs to a packaged font', async () => {
+test('icon stylesheet maps all 159 glyphs and the trash alias to a packaged font', async () => {
   const css = await readFile(resolve(root, 'dist/css/icons.css'), 'utf8');
   const glyphs = css.match(/\.wui \.wui-icon--[a-z0-9-]+::before/g) || [];
-  assert.equal(glyphs.length, 139);
+  assert.equal(glyphs.length, 160);
   assert.match(css, /webilia-ui-icons\.woff2/);
   assert.match(css, /\.wui \.wui-icon--stars::before/);
+  assert.match(css, /\.wui \.wui-icon--calendar-clock::before/);
+  assert.match(css, /\.wui \.wui-icon--calendar::before/);
+  assert.match(css, /\.wui \.wui-icon--bookmark::before/);
+  assert.match(css, /\.wui \.wui-icon--bookmark-line::before/);
+  assert.match(css, /\.wui \.wui-icon--bookmark-check::before/);
+  assert.match(css, /\.wui \.wui-icon--trash::before\s*\{\s*content: "\\e09b";/);
   assert.equal((await readFile(resolve(root, 'dist/fonts/webilia-ui-icons.woff2'))).subarray(0, 4).toString(), 'wOF2');
   assert.equal((await readFile(resolve(root, 'dist/fonts/webilia-ui-icons.woff'))).subarray(0, 4).toString(), 'wOFF');
 });

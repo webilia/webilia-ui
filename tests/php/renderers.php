@@ -30,6 +30,8 @@ check(Breadcrumb::render(['items' => []]) === '', 'Empty breadcrumb must render 
 $notice = Notice::render(['message' => '<b>Danger</b>', 'tone' => 'danger', 'detail' => 'Try again.']);
 check(strpos($notice, '&lt;b&gt;Danger&lt;/b&gt;') !== false, 'Notice must escape text.');
 check(strpos($notice, 'role="alert"') !== false, 'Danger notice must use alert role.');
+check(strpos($notice, 'wui-icon--alert wui-notice__icon" aria-hidden="true"') !== false, 'Danger notice needs a decorative leading icon.');
+check(strpos($notice, 'wui-notice__icon') < strpos($notice, 'wui-notice__content'), 'Notice icon must precede its text.');
 
 $header = Header::render([
     'title' => 'WiBee <Admin>',

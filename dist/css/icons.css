@@ -1,6 +1,6 @@
 @font-face {
   font-family: "webilia-ui-icons";
-  src: url(../fonts/webilia-ui-icons.woff2) format("woff2"), url(../fonts/webilia-ui-icons.woff) format("woff");
+  src: url(../fonts/webilia-ui-icons.woff2?20261029) format("woff2"), url(../fonts/webilia-ui-icons.woff?20261029) format("woff");
   font-style: normal;
   font-weight: normal;
   font-display: block;
@@ -581,4 +581,88 @@
 
 .wui .wui-icon--account::before {
   content: "\e08a";
+}
+
+.wui .wui-icon--bookmark-line::before {
+  content: "\e08b";
+}
+
+.wui .wui-icon--bookmark::before {
+  content: "\e08c";
+}
+
+.wui .wui-icon--bookmark-square::before {
+  content: "\e08d";
+}
+
+.wui .wui-icon--bookmark-add::before {
+  content: "\e08e";
+}
+
+.wui .wui-icon--bookmark-block::before {
+  content: "\e08f";
+}
+
+.wui .wui-icon--bookmark-check::before {
+  content: "\e090";
+}
+
+.wui .wui-icon--calendar-date::before {
+  content: "\e091";
+}
+
+.wui .wui-icon--calendar-list::before {
+  content: "\e092";
+}
+
+.wui .wui-icon--calendar-grid::before {
+  content: "\e093";
+}
+
+.wui .wui-icon--calendar::before {
+  content: "\e094";
+}
+
+.wui .wui-icon--calendar-add::before {
+  content: "\e095";
+}
+
+.wui .wui-icon--calendar-block::before {
+  content: "\e096";
+}
+
+.wui .wui-icon--calendar-clock::before {
+  content: "\e097";
+}
+
+.wui .wui-icon--circle-arrow-down::before {
+  content: "\e098";
+}
+
+.wui .wui-icon--circle-arrow-up::before {
+  content: "\e099";
+}
+
+.wui .wui-icon--database-server::before {
+  content: "\e09a";
+}
+
+.wui .wui-icon--delete::before {
+  content: "\e09b";
+}
+
+.wui .wui-icon--edit-table::before {
+  content: "\e09c";
+}
+
+.wui .wui-icon--license-third-party::before {
+  content: "\e09d";
+}
+
+.wui .wui-icon--money-security::before {
+  content: "\e09e";
+}
+
+.wui .wui-icon--trash::before {
+  content: "\e09b";
 }
