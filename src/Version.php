@@ -4,5 +4,5 @@ namespace Webilia\UI;
 
 final class Version
 {
-    public const VALUE = '1.5.1';
+    public const VALUE = '1.5.3';
 }

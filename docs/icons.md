@@ -6,6 +6,12 @@ Decorative icons need aria-hidden="true"; an icon-only control needs an accessib
 
 The font contains 159 icons. `wui-icon--trash` aliases `wui-icon--delete`.
 
+The glyphs retain their original advance widths and outline padding. After
+replacing the font files, restore their horizontal bearings with
+`python scripts/fix-icon-bearings.py` before building the CSS. This command
+requires the Python `fonttools` and `brotli` packages and regenerates both WOFF
+formats without moving or resizing the outlines.
+
 | Icon | Icon | Icon |
 | --- | --- | --- |
 | wui-icon--wrap | wui-icon--wrap-reverse | wui-icon--wizard |
